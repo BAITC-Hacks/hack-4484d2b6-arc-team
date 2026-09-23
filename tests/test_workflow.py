@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 import pytest
 from fastapi.testclient import TestClient
@@ -202,3 +203,98 @@ def test_invalid_decisions_and_milestones_do_not_change_state(tmp_path, monkeypa
             "Origin": "http://localhost:5173", "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": "Content-Type,X-Demo-Team-Id"})
         assert response.status_code == 200
+
+
+@pytest.mark.parametrize("fields,score,level", [
+    ([], 0, "draft"),
+    (["data", "expected_result", "contact"], 39, "draft"),
+    (["data", "context", "need"], 40, "working"),
+    (["data", "expected_result", "context", "need", "users", "contact"], 69, "working"),
+    (["data", "expected_result", "success_criteria", "context", "need"], 70, "ready"),
+    (["need", "data", "expected_result", "success_criteria", "constraints", "users", "interaction_format"], 86, "ready"),
+    (["context", "need", "data", "expected_result", "success_criteria", "constraints", "users"], 90, "priority"),
+    (["context", "need", "data", "expected_result", "success_criteria", "constraints", "users", "contact", "interaction_format"], 100, "priority"),
+])
+def test_real_card_rating_survives_confirmation_publication_and_catalog_filter(tmp_path, fields, score, level):
+    with demo_client(tmp_path) as client:
+        task = publish(client, {"title": "Проверка готовности", **{field: "Сведения бизнеса" for field in fields}})
+        rating = task["confirmed_rating"]
+        assert rating["score"] == score
+        assert rating["level"] == level
+        assert sum(c["points"] for c in rating["categories"]) == score
+        assert not set(fields) & set(rating["missing_fields"])
+        public = client.get(f'/api/catalog/{task["id"]}').json()
+        assert public["published_rating"] == rating
+        filtered = client.get('/api/catalog', params={"readiness": level}).json()
+        assert filtered == [public]
+        assert offer(client, task["id"]).status_code == 200
+
+
+def test_ai_to_two_selected_teams_and_pending_stage_survives_restarts(tmp_path):
+    with demo_client(tmp_path) as client:
+        response = client.post('/api/tasks', headers=OWNER,
+                               json={"original_text": "У нас путаются остатки товаров.", "topic": "retail"})
+        assert response.status_code == 201
+        url = '/api/tasks/' + response.json()["id"]
+        assert client.post(url + '/questions', headers=OWNER, json={"mode": "local"}).status_code == 200
+        generated = client.post(url + '/generate-card', headers=OWNER,
+                                json={"mode": "local", "answers": {"q-data": "Есть тестовый CSV."}})
+        assert generated.status_code == 200
+        confirmed = client.post(url + '/confirm', headers=OWNER,
+                                json={"expected_updated_at": generated.json()["task"]["updated_at"]})
+        assert confirmed.status_code == 200
+        published = client.post(url + '/publish', headers=OWNER,
+                                json={"expected_updated_at": confirmed.json()["updated_at"]})
+        assert published.status_code == 200
+        task = published.json()
+        assert task["published_rating"]["score"] == 30
+        milestones = []
+        for team_id in ('team-1', 'team-2'):
+            proposal = offer(client, task["id"], team_id)
+            assert proposal.status_code == 200
+            assert select(client, proposal.json()["id"]).status_code == 200
+            result = client.post(f'/api/proposals/{proposal.json()["id"]}/milestones',
+                                 headers={"X-Demo-Team-Id": team_id}, json=RESULT)
+            assert result.status_code == 200
+            milestones.append(result.json())
+        first = client.post(f'/api/milestones/{milestones[0]["id"]}/confirm', headers=OWNER)
+        assert first.status_code == 200
+        assert points(client) == 10 and points(client, 'team-2') == 0
+        before = client.get(url + '/proposals', headers=OWNER).json()
+    with demo_client(tmp_path) as restarted:
+        assert restarted.get(url, headers=OWNER).json() == task
+        assert restarted.get(url + '/proposals', headers=OWNER).json() == before
+        assert points(restarted) == 10 and points(restarted, 'team-2') == 0
+        assert restarted.post(f'/api/milestones/{milestones[0]["id"]}/confirm', headers=OWNER).json() == first.json()
+        second = restarted.post(f'/api/milestones/{milestones[1]["id"]}/confirm', headers=OWNER)
+        assert second.status_code == 200 and second.json()["points_awarded"] == 10
+        assert points(restarted) == points(restarted, 'team-2') == 10
+        public = restarted.get(f'/api/catalog/{task["id"]}').json()
+        assert public["published_rating"] == task["published_rating"]
+    with demo_client(tmp_path) as restarted:
+        assert points(restarted) == points(restarted, 'team-2') == 10
+        with restarted.app.state.db.connect() as connection:
+            assert connection.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+            assert connection.execute('PRAGMA foreign_key_check').fetchall() == []
+
+
+def test_competing_manual_decisions_have_one_winner_without_affecting_other_teams(tmp_path):
+    with demo_client(tmp_path) as client, ThreadPoolExecutor(max_workers=2) as pool:
+        task = publish(client)
+        proposal = offer(client, task["id"]).json()
+        other = offer(client, task["id"], 'team-2').json()
+        barrier = Barrier(2, timeout=10)
+
+        def decide(status):
+            barrier.wait()
+            return select(client, proposal["id"], status)
+
+        results = list(pool.map(decide, ['selected', 'rejected']))
+        assert sorted(r.status_code for r in results) == [200, 409]
+        winner = next(r.json() for r in results if r.status_code == 200)
+        loser = next(r.json() for r in results if r.status_code == 409)
+        assert loser['error']['code'] == 'decision_conflict'
+        stored = client.get(f'/api/tasks/{task["id"]}/proposals', headers=OWNER).json()
+        assert stored == [winner, other]
+        assert other['status'] == 'submitted'
+        assert points(client) == points(client, 'team-2') == 0
