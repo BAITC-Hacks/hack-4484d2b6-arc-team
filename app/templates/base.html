@@ -8,8 +8,10 @@
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="stylesheet" href="/static/catalog.css">
+  <link rel="stylesheet" href="/static/builder.css">
   <script src="/static/shell.js" defer></script>
   <script src="/static/catalog.js" defer></script>
+  <script src="/static/builder.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -37,8 +39,8 @@
         <div class="profile-switcher">
           <label for="demo-profile"><span class="demo-dot" aria-hidden="true"></span> ДЕМОПРОФИЛЬ</label>
           <select id="demo-profile" aria-describedby="demo-disclaimer">
-            <option value="business">Бизнес · Мята</option>
-            <option value="team">Команда · Орбита</option>
+            <option value="business">Бизнес</option>
+            <option value="team">Студенческая команда</option>
           </select>
           <p id="demo-disclaimer">Учебные профили, без авторизации</p>
         </div>
@@ -51,48 +53,61 @@
       <main id="main-content" tabindex="-1">
         <section id="page-builder" class="page" aria-labelledby="builder-title">
           <div class="page-heading"><div><p class="eyebrow">ДАВАЙТЕ НАЧНЁМ С ВАШЕЙ ИДЕИ</p><h1 id="builder-title">Расскажите о вашей задаче</h1><p class="subtitle">Чем понятнее задача, тем более сильные команды откликнутся.</p></div><div class="handwritten heading-note" aria-hidden="true">Большие решения<br>начинаются с вопроса <span>↙</span></div></div>
-          <div class="builder-layout">
-            <div class="builder-content">
-              <ol class="steps" aria-label="Этапы создания задачи"><li class="step is-current" aria-current="step"><span>1</span>Черновик</li><li class="step-arrow" aria-hidden="true">→</li><li class="step"><span>2</span>Уточнение</li><li class="step-arrow" aria-hidden="true">→</li><li class="step"><span>3</span>Публикация</li></ol>
-
-              <section class="panel draft-panel" aria-labelledby="description-label">
-                <div class="field-heading"><label id="description-label" for="draft-preview">Описание задачи</label><span class="badge badge-blue">Пример</span></div>
-                <p class="field-hint" id="draft-hint">Опишите цель, текущую ситуацию и желаемый результат.</p>
-                <div class="editor-preview"><div class="editor-caption"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#text"/></svg>Всё начинается с нескольких слов</div><textarea id="draft-preview" aria-describedby="draft-hint preview-notice" readonly>Хотим сократить опоздания доставки</textarea><div class="editor-footer">Пример описания бизнес-задачи</div></div>
-                <div class="writing-tip"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#spark"/></svg><span>Не нужно знать всё сразу. Начните с того, что важно для вас.</span></div>
-              </section>
-
-              <div class="questions-heading"><h2>Поможем уточнить детали</h2><span>Примеры вопросов</span></div>
-              <div class="question-list">
-                <details class="question-card"><summary><span class="question-number number-blue">1</span><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#people"/></svg><span class="question-copy"><strong>Кто будет пользоваться решением?</strong><span>Кто ваша целевая аудитория? Опишите её.</span></span><span class="chevron" aria-hidden="true">›</span></summary><p class="question-detail">Например, диспетчеры, курьеры или клиенты. Уточните, какую задачу они решают сейчас. Это пример подсказки, а не ответ ИИ.</p></details>
-                <details class="question-card"><summary><span class="question-number number-mint">2</span><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#document"/></svg><span class="question-copy"><strong>Какие данные доступны?</strong><span>Какие данные вы можете предоставить и в каком формате?</span></span><span class="chevron" aria-hidden="true">›</span></summary><p class="question-detail">Например, обезличенная таблица заказов. Если пока не знаете, какие данные есть, это можно будет указать в ответе.</p></details>
-                <details class="question-card"><summary><span class="question-number number-yellow">3</span><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#chart"/></svg><span class="question-copy"><strong>Как вы проверите результат?</strong><span>По каким признакам будет понятно, что решение помогает?</span></span><span class="chevron" aria-hidden="true">›</span></summary><p class="question-detail">Подумайте, какой показатель можно сравнить до и после небольшого пилота. Конкретное значение должен подтвердить бизнес.</p></details>
-              </div>
-              <p id="preview-notice" class="preview-notice"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#info"/></svg><span>Это образец интерфейса. Ввод, вопросы ИИ и публикация появятся на следующем этапе.</span></p>
+          <div id="builder-team-notice" class="panel builder-notice" hidden><h2>Конструктор для бизнеса</h2><p>Чтобы описать задачу, переключитесь на демонстрационный профиль бизнеса. Ваши черновики сохранятся.</p><button id="builder-switch-business" class="button button-outline" type="button">Перейти к роли бизнеса</button></div>
+          <div id="builder-workspace">
+            <div class="builder-toolbar">
+              <div class="form-field"><label for="builder-business">Демонстрационный бизнес</label><select id="builder-business" class="field-control" disabled><option value="">Загрузка профилей…</option></select></div>
+              <div class="form-field"><label for="builder-task">Рабочий черновик</label><select id="builder-task" class="field-control" disabled><option value="">Новая задача</option></select></div>
+              <button id="builder-new" class="button button-outline" type="button" disabled>＋ Новая задача</button>
             </div>
-
-            <aside class="readiness-column" aria-label="Пример панели готовности">
-              <section class="panel readiness-panel" aria-labelledby="readiness-title">
-                <div class="readiness-header"><h2 id="readiness-title">Готовность задачи</h2><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#info"/></svg><span class="badge badge-blue">Рабочая</span></div>
-                <div class="score"><strong>55</strong><span>/ 100</span><span class="score-caption">пример</span></div>
-                <div class="score-meter" role="img" aria-label="Пример готовности: 55 из 100"><span class="meter-blue"></span><span class="meter-yellow"></span></div>
-                <ul class="score-categories">
-                  <li><span class="category-indicator complete" aria-label="Заполнено">✓</span><span>Контекст</span><span><strong>20</strong> / 20</span></li>
-                  <li><span class="category-indicator partial" aria-label="Частично">◷</span><span>Данные</span><span><strong>10</strong> / 20</span></li>
-                  <li><span class="category-indicator complete" aria-label="Заполнено">✓</span><span>Результат</span><span><strong>15</strong> / 15</span></li>
-                  <li><span class="category-indicator" aria-label="Не заполнено"></span><span>Критерии</span><span><strong>0</strong> / 15</span></li>
-                  <li><span class="category-indicator" aria-label="Не заполнено"></span><span>Ограничения</span><span><strong>0</strong> / 10</span></li>
-                  <li><span class="category-indicator" aria-label="Не заполнено"></span><span>Пользователи</span><span><strong>0</strong> / 10</span></li>
-                  <li><span class="category-indicator complete" aria-label="Заполнено">✓</span><span>Связь</span><span><strong>10</strong> / 10</span></li>
-                </ul>
-                <div class="improvement-tip"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#bulb"/></svg><div><strong>Добавьте критерии успеха</strong><p>Чем конкретнее критерии, тем проще командам предложить сильное решение.</p></div></div>
-                <button class="button button-primary confirm-button" type="button" disabled aria-describedby="score-notice">Сохранить и подтвердить <span aria-hidden="true">→</span></button>
-                <p class="score-notice" id="score-notice">Образец рейтинга. Подтверждение будет доступно после подключения сервера.</p>
-              </section>
-              <div class="quiet-note"><span class="small-star" aria-hidden="true">✳</span><p>Хорошая задача — первый шаг<br>к полезному решению.</p></div>
-            </aside>
+            <p id="builder-storage-warning" class="builder-callout" hidden>Браузер не разрешает сохранять локальную копию. Не закрывайте страницу до сохранения на сервере.</p>
+            <div id="builder-error" class="builder-error" role="alert" hidden><p id="builder-error-message"></p><ul id="builder-error-details"></ul><div class="builder-actions"><button id="builder-retry" class="button button-outline" type="button">Повторить</button><button id="builder-local" class="button button-outline" type="button" hidden>Продолжить в локальном режиме</button></div></div>
+            <p id="builder-status" class="builder-status" role="status" aria-live="polite">Подключаем конструктор…</p>
+            <div id="builder-content" class="builder-layout">
+              <div class="builder-content">
+                <ol class="steps" aria-label="Этапы создания задачи">
+                  <li class="step is-current" data-builder-step="draft" aria-current="step"><button type="button" data-stage="draft"><span>1</span>Черновик</button></li><li class="step-arrow" aria-hidden="true">→</li>
+                  <li class="step" data-builder-step="questions"><button type="button" data-stage="questions" disabled><span>2</span>Уточнение</button></li><li class="step-arrow" aria-hidden="true">→</li>
+                  <li class="step" data-builder-step="card"><button type="button" data-stage="card" disabled><span>3</span>Карточка</button></li>
+                </ol>
+                <fieldset id="builder-fields" disabled>
+                  <legend class="sr-only">Содержание задачи</legend>
+                  <section id="builder-stage-draft" class="builder-stage" aria-labelledby="draft-heading">
+                    <form id="builder-draft-form" class="panel draft-panel">
+                      <div class="field-heading"><h2 id="draft-heading">Описание задачи</h2><span class="badge badge-blue">Черновик</span></div>
+                      <p class="field-hint" id="draft-hint">Опишите цель, текущую ситуацию и желаемый результат. Неизвестное можно уточнить позже.</p>
+                      <label class="sr-only" for="builder-draft">Расскажите о вашей задаче</label>
+                      <textarea id="builder-draft" class="field-control" maxlength="20000" required aria-describedby="draft-hint" placeholder="Например: у нас небольшая доставка, хотим сократить опоздания…"></textarea>
+                      <div class="editor-footer"><span id="builder-char-count">0</span> / 20 000</div>
+                      <div class="form-field"><label for="builder-topic">Тема <span class="builder-optional">необязательно</span></label><select id="builder-topic" class="field-control"><option value="">Пока не выбрана</option><option value="logistics">Логистика</option><option value="retail">Торговля</option><option value="education">Образование</option><option value="agriculture">Сельское хозяйство</option><option value="services">Услуги</option><option value="other">Другое</option></select></div>
+                      <div class="writing-tip"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#spark"/></svg><span>Не нужно знать всё сразу. Начните с того, что важно для вас.</span></div>
+                      <div class="builder-actions"><button id="builder-analyze" class="button button-primary" type="submit">Получить вопросы <span aria-hidden="true">→</span></button><button id="builder-save-draft" class="button button-outline" type="button">Сохранить черновик</button></div>
+                    </form>
+                  </section>
+                  <section id="builder-stage-questions" class="builder-stage" aria-labelledby="questions-heading" hidden>
+                    <h2 id="questions-heading" tabindex="-1">Уточним несколько деталей</h2><p class="field-hint">Ответьте своими словами. Если чего-то не знаете, напишите «не знаю» или оставьте поле пустым.</p>
+                    <p id="builder-questions-source" class="builder-callout"></p>
+                    <form id="builder-questions-form"><div id="builder-questions" class="question-list"></div><div class="builder-actions"><button class="button button-primary" type="submit">Сформировать карточку <span aria-hidden="true">→</span></button><button id="builder-save-answers" class="button button-outline" type="button">Сохранить ответы</button></div></form>
+                    <div class="builder-actions"><button class="builder-text-button" data-stage="draft" type="button">← Изменить описание</button><button id="builder-more-questions" class="builder-text-button" type="button">Обновить вопросы</button></div>
+                  </section>
+                  <section id="builder-stage-card" class="builder-stage" aria-labelledby="card-heading" hidden>
+                    <div class="field-heading"><h2 id="card-heading" tabindex="-1">Проверьте карточку задачи</h2><span class="badge badge-yellow">Не подтверждена</span></div>
+                    <p class="field-hint">Исправьте формулировки. Неизвестные сведения оставьте пустыми — мы не добавим их за вас.</p>
+                    <p id="builder-card-source" class="builder-callout"></p>
+                    <form id="builder-card-form" class="panel draft-panel"><div id="builder-card-fields" class="builder-card-fields"></div><div class="builder-actions"><button class="button button-primary" type="submit">Сохранить правки</button><button class="button button-outline" data-stage="questions" type="button">← К ответам</button></div></form>
+                    <section class="panel builder-recommendations" aria-labelledby="recommendations-heading"><h3 id="recommendations-heading">Рекомендованный подход</h3><p class="field-hint">Советы отдельно от требований бизнеса. Команда вправе предложить другой подход.</p><ul id="builder-recommendations"></ul></section>
+                    <section class="builder-callout" aria-labelledby="publication-heading"><h3 id="publication-heading">Подтверждение и публикация</h3><p>Карточка сохранится как рабочая версия. Серверное подтверждение и публикация появятся на следующем этапе.</p><div class="builder-actions"><button class="button button-outline" type="button" disabled>Подтвердить карточку</button><button class="button button-outline" type="button" disabled>Опубликовать</button></div></section>
+                  </section>
+                </fieldset>
+              </div>
+              <aside class="readiness-column" aria-label="Состояние задачи">
+                <section class="panel readiness-panel"><h2>Готовность задачи</h2><p class="builder-unrated">Ещё не рассчитана</p><p class="field-hint">Рейтинг появится после ручного подтверждения карточки. Его рассчитает сервер.</p><div class="improvement-tip"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#bulb"/></svg><div><strong>Сначала — понятная задача</strong><p>Описание, ответы и правки сохраняются отдельно от подтверждённой версии.</p></div></div></section>
+                <section class="panel builder-mode"><label for="builder-mode">Как подготовить карточку</label><select id="builder-mode" class="field-control" disabled><option value="local">Локальный режим</option><option value="openai">OpenAI</option></select><p id="builder-mode-description" class="field-hint">Проверяем доступные режимы…</p></section>
+                <div class="quiet-note"><span class="small-star" aria-hidden="true">✳</span><p>Хорошая задача — первый шаг<br>к полезному решению.</p></div>
+              </aside>
+            </div>
           </div>
-          <footer class="page-footer"><span>Бизнес + студенты + технологии</span><span>Маленький шаг. Большие возможности. <span aria-hidden="true">↗</span></span></footer>
+          <footer class="page-footer"><span>Демонстрационные профили · без авторизации</span><span>Маленький шаг. Большие возможности. ↗</span></footer>
         </section>
 
         <section id="page-catalog" class="page" aria-labelledby="catalog-title" hidden>
@@ -124,6 +139,6 @@
     <h3>Ожидаемый результат</h3><p id="catalog-preview-result"></p>
     <p class="catalog-preview-note">Полная страница задачи и отправка предложения появятся на следующих шагах. Рейтинг не ограничивает возможность отклика.</p>
   </dialog>
-  <noscript><p class="noscript-notice">Для переключения разделов и демопрофиля включите JavaScript. Сейчас показан образец конструктора.</p></noscript>
+  <noscript><p class="noscript-notice">Для работы конструктора, переключения разделов и демопрофиля включите JavaScript.</p></noscript>
 </body>
 </html>

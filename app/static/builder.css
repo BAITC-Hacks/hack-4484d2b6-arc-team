@@ -1,0 +1,49 @@
+/* Business constructor. Shared Soft Retro tokens live in styles.css. */
+#page-builder fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.builder-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; padding: 16px; background: #f0f2eb; border-radius: 10px; }
+.builder-toolbar .form-field { flex: 1 1 180px; min-width: 0; }
+.builder-toolbar .field-control { font-size: 12px; }
+.builder-toolbar > button { flex-shrink: 0; }
+.builder-status { min-height: 19px; margin: 14px 2px; font-size: 12px; color: var(--color-muted); line-height: 1.6; }
+.builder-error { border: 1px solid #b46b58; background: #fff0e7; padding: 16px; border-radius: 9px; margin-top: 16px; }
+.builder-error p { margin: 0; line-height: 1.7; }
+.builder-error ul { padding-left: 20px; font-size: 12px; line-height: 1.7; }
+.builder-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.builder-actions .button { font-size: 12px; }
+.builder-stage h2, .readiness-panel > h2 { font-size: 16px; margin: 0 0 8px; }
+.builder-stage .field-heading h2 { font-size: 14px; margin: 0; }
+#page-builder .steps .step { padding: 0; border: 0; background: none; }
+#page-builder .step button { display: flex; gap: 8px; align-items: center; color: inherit; font: inherit; border: 1px solid transparent; border-radius: 20px; background: none; padding: 4px; }
+#page-builder .step button > span { display: grid; place-items: center; width: 23px; height: 23px; border: 1px solid #aab3be; border-radius: 50%; }
+#page-builder .step.is-current button { background: var(--color-blue); border-color: #a2c0ec; padding-right: 12px; }
+#page-builder .step.is-current button > span { color: white; background: var(--color-primary); border-color: var(--color-primary); }
+#page-builder button:disabled { cursor: not-allowed; }
+#page-builder .step button:disabled { color: #738096; }
+#builder-draft { min-height: 180px; font-size: 15px; }
+.builder-optional { color: var(--color-muted); font-size: 11px; font-weight: 400; }
+.builder-callout { padding: 14px 16px; margin: 16px 0; background: #eef4ed; border: 1px solid #c9d8c6; border-radius: 8px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.builder-callout h3 { margin: 0; font-size: 14px; }
+.builder-callout p { margin: 8px 0 0; }
+.builder-question { padding: 18px; }
+.builder-question label { display: flex; align-items: flex-start; gap: 12px; font-weight: 600; font-size: 13px; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.builder-question textarea { min-height: 92px; font-size: 13px; }
+.builder-text-button { border: 0; padding: 7px 0; background: transparent; color: #245897; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.builder-card-fields { display: grid; gap: 20px; }
+.builder-card-fields textarea { min-height: 100px; font-size: 13px; }
+.builder-card-fields .field-hint { margin: -3px 0 0; }
+.builder-recommendations { padding: 18px; margin-top: 18px; border-color: #a2b9ab; background: #f3f8f1; }
+.builder-recommendations h3 { font-size: 14px; margin: 0; }
+.builder-recommendations ul { padding-left: 18px; font-size: 12px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.builder-unrated { font-family: Georgia, serif; font-size: 24px; line-height: 1.3; margin: 20px 0 12px; }
+.builder-mode { padding: 16px; margin-top: 16px; border-color: #aab6c4; }
+.builder-mode label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+.builder-mode .field-control { font-size: 12px; }
+.builder-mode .field-hint { margin-bottom: 0; }
+.builder-notice { padding: 28px; }
+.builder-notice h2 { font-family: Georgia, serif; font-size: 24px; }
+.builder-notice p { line-height: 1.7; }
+.builder-dialog { max-width: min(500px, calc(100vw - 32px)); padding: 28px; color: var(--color-ink); background: var(--color-surface); border: 1px solid var(--color-outline); border-radius: 12px; }
+.builder-dialog::backdrop { background: rgb(23 43 77 / 30%); }
+.builder-dialog h2 { margin: 0; font-family: Georgia, serif; }
+.builder-dialog p { line-height: 1.7; }
+@media (max-width: 600px) { #page-builder .steps { gap: 6px; } #page-builder .step button { gap: 5px; } .builder-toolbar { padding: 12px; } .builder-actions .button { flex: 1 1 auto; } }
