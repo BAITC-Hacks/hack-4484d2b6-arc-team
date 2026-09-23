@@ -26,11 +26,22 @@ class Database:
         with self.connect() as connection:
             connection.execute("PRAGMA journal_mode = WAL")
             version = connection.execute("PRAGMA user_version").fetchone()[0]
-            if version > 1:
+            if version > 2:
                 raise RuntimeError("Database schema is newer than this application")
             if version == 0:
                 schema = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
                 connection.executescript("BEGIN IMMEDIATE;\n" + schema + "\nPRAGMA user_version = 1;\nCOMMIT;")
+                version = 1
+            if version == 1:
+                connection.executescript("""
+                    BEGIN IMMEDIATE;
+                    ALTER TABLE tasks ADD COLUMN questions_ai TEXT
+                        CHECK (questions_ai IS NULL OR json_valid(questions_ai));
+                    ALTER TABLE tasks ADD COLUMN card_ai TEXT
+                        CHECK (card_ai IS NULL OR json_valid(card_ai));
+                    PRAGMA user_version = 2;
+                    COMMIT;
+                """)
 
 
 if __name__ == "__main__":

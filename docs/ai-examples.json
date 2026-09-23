@@ -1,0 +1,193 @@
+{
+  "contract_version": "0.2.0",
+  "headers": {
+    "X-Demo-Business-Id": "business-1"
+  },
+  "questions": {
+    "method": "POST",
+    "path": "/api/tasks/draft-1/questions",
+    "request": {
+      "mode": "local"
+    },
+    "response": {
+      "task": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [
+          {
+            "id": "q-data",
+            "field": "data",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какие данные и примеры доступны для этой задачи, в каком формате и с каким доступом?"
+          },
+          {
+            "id": "q-expected_result",
+            "field": "expected_result",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какой конкретный результат должна передать команда и как вы будете его использовать?"
+          },
+          {
+            "id": "q-success_criteria",
+            "field": "success_criteria",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Как вы проверите, что задача решена: какой показатель и способ проверки используете?"
+          },
+          {
+            "id": "q-users",
+            "field": "users",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Кто будет пользоваться решением и какое действие должен выполнять с его помощью?"
+          },
+          {
+            "id": "q-constraints",
+            "field": "constraints",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какие сроки, технические ограничения и ограничения доступа нужно учесть?"
+          }
+        ],
+        "answers": {},
+        "proposed_card": {
+          "title": "",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": null,
+        "confirmed_rating": null,
+        "published_card": null,
+        "published_rating": null,
+        "status": "draft",
+        "confirmed_at": null,
+        "published_at": null,
+        "created_at": "2026-09-23T10:00:00Z",
+        "updated_at": "2026-09-23T10:00:00Z",
+        "questions_ai": {
+          "mode": "local",
+          "model": null,
+          "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
+          "generated_at": "2026-09-23T10:00:00Z"
+        },
+        "card_ai": null
+      },
+      "ai": {
+        "mode": "local",
+        "model": null,
+        "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
+        "generated_at": "2026-09-23T10:00:00Z"
+      }
+    }
+  },
+  "generate_card": {
+    "method": "POST",
+    "path": "/api/tasks/draft-1/generate-card",
+    "request": {
+      "mode": "local",
+      "answers": {
+        "q-data": "Есть тестовый CSV на 500 товаров.",
+        "q-expected_result": "Веб-прототип загрузки CSV и просмотра остатков.",
+        "q-success_criteria": "На тестовом CSV найдены все товары с остатком ниже 5.",
+        "q-users": "Кладовщик и владелец магазина.",
+        "q-constraints": "Не знаю"
+      }
+    },
+    "response": {
+      "task": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [
+          {
+            "id": "q-data",
+            "field": "data",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какие данные и примеры доступны для этой задачи, в каком формате и с каким доступом?"
+          },
+          {
+            "id": "q-expected_result",
+            "field": "expected_result",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какой конкретный результат должна передать команда и как вы будете его использовать?"
+          },
+          {
+            "id": "q-success_criteria",
+            "field": "success_criteria",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Как вы проверите, что задача решена: какой показатель и способ проверки используете?"
+          },
+          {
+            "id": "q-users",
+            "field": "users",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Кто будет пользоваться решением и какое действие должен выполнять с его помощью?"
+          },
+          {
+            "id": "q-constraints",
+            "field": "constraints",
+            "text": "Для задачи «У нас постоянно путаются остатки товаров.»: Какие сроки, технические ограничения и ограничения доступа нужно учесть?"
+          }
+        ],
+        "answers": {
+          "q-data": "Есть тестовый CSV на 500 товаров.",
+          "q-expected_result": "Веб-прототип загрузки CSV и просмотра остатков.",
+          "q-success_criteria": "На тестовом CSV найдены все товары с остатком ниже 5.",
+          "q-users": "Кладовщик и владелец магазина.",
+          "q-constraints": "Не знаю"
+        },
+        "proposed_card": {
+          "title": "У нас постоянно путаются остатки товаров.",
+          "context": "У нас постоянно путаются остатки товаров.",
+          "need": "",
+          "users": "Кладовщик и владелец магазина.",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "Веб-прототип загрузки CSV и просмотра остатков.",
+          "success_criteria": "На тестовом CSV найдены все товары с остатком ниже 5.",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": null,
+        "confirmed_rating": null,
+        "published_card": null,
+        "published_rating": null,
+        "status": "draft",
+        "confirmed_at": null,
+        "published_at": null,
+        "created_at": "2026-09-23T10:00:00Z",
+        "updated_at": "2026-09-23T10:00:00Z",
+        "questions_ai": {
+          "mode": "local",
+          "model": null,
+          "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
+          "generated_at": "2026-09-23T10:00:00Z"
+        },
+        "card_ai": {
+          "mode": "local",
+          "model": null,
+          "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
+          "generated_at": "2026-09-23T10:00:00Z"
+        }
+      },
+      "ai": {
+        "mode": "local",
+        "model": null,
+        "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
+        "generated_at": "2026-09-23T10:00:00Z"
+      }
+    }
+  },
+  "missing_key_error": {
+    "http_status": 503,
+    "response": {
+      "error": {
+        "code": "ai_not_configured",
+        "message": "OpenAI не настроен. Выберите mode=local или настройте ключ на сервере.",
+        "details": [],
+        "local_mode_available": true
+      }
+    }
+  }
+}

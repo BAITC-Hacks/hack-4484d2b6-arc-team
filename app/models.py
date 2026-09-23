@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
 
@@ -120,6 +120,21 @@ class DraftUpdate(Model):
         return self
 
 
+class AIMetadata(Model):
+    mode: Literal["local", "openai"]
+    model: str | None = None
+    message: str
+    generated_at: datetime
+
+
+class AIRequest(Model):
+    mode: Literal["local", "openai"] | None = None
+
+
+class GenerateCardRequest(AIRequest):
+    answers: dict[str, Text] | None = Field(default=None, max_length=20)
+
+
 class Task(Model):
     id: str
     business_id: str
@@ -138,6 +153,13 @@ class Task(Model):
     published_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+    questions_ai: AIMetadata | None = None
+    card_ai: AIMetadata | None = None
+
+
+class AIResult(Model):
+    task: Task
+    ai: AIMetadata
 
 
 class Proposal(Model):

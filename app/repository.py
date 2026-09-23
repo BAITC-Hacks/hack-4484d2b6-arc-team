@@ -3,9 +3,13 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from app.db import Database
-from app.models import DemoProfiles, DraftCreate, DraftUpdate, Task, TaskCard
+from app.models import AIMetadata, DemoProfiles, DraftCreate, DraftUpdate, Question, Task, TaskCard
 
-JSON_FIELDS = {"questions", "answers", "proposed_card", "confirmed_card", "confirmed_rating", "published_card", "published_rating"}
+JSON_FIELDS = {"questions", "answers", "proposed_card", "confirmed_card", "confirmed_rating", "published_card", "published_rating", "questions_ai", "card_ai"}
+
+
+class StaleTaskError(Exception):
+    """The user edited the task while an AI request was running."""
 
 
 def utc_now() -> str:
@@ -66,6 +70,8 @@ class Repository:
         for field in ("answers", "proposed_card"):
             if field in values:
                 values[field] = encode(values[field])
+        if "proposed_card" in values:
+            values["card_ai"] = None
         values["updated_at"] = utc_now()
         assignments = ", ".join(f"{field} = ?" for field in values)
         with self.db.connect() as connection:
@@ -73,3 +79,34 @@ class Repository:
             if not cursor.rowcount:
                 return None
             return decode_task(connection.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone())
+
+    def _save_ai_fields(self, snapshot: Task, values: dict) -> Task:
+        values = {field: encode(value) for field, value in values.items()}
+        values["updated_at"] = utc_now()
+        assignments = ", ".join(f"{field} = ?" for field in values)
+        with self.db.connect() as connection:
+            cursor = connection.execute(
+                f"UPDATE tasks SET {assignments} WHERE id = ? AND business_id = ? AND updated_at = ?",
+                (*values.values(), snapshot.id, snapshot.business_id, snapshot.updated_at.isoformat()),
+            )
+            if not cursor.rowcount:
+                raise StaleTaskError()
+            return decode_task(connection.execute("SELECT * FROM tasks WHERE id = ?", (snapshot.id,)).fetchone())
+
+    def save_questions(self, snapshot: Task, questions: list[Question], meta: AIMetadata) -> Task:
+        # Keep answered questions and their IDs; regeneration must not orphan answers.
+        answered = {q.id: q for q in snapshot.questions if snapshot.answers.get(q.id, "").strip()}
+        merged = {q.id: answered.get(q.id, q) for q in questions}
+        merged.update(answered)
+        return self._save_ai_fields(snapshot, {
+            "questions": [q.model_dump() for q in merged.values()],
+            "questions_ai": meta.model_dump(mode="json"),
+        })
+
+    def save_answers(self, snapshot: Task, answers: dict[str, str]) -> Task:
+        return self._save_ai_fields(snapshot, {"answers": {**snapshot.answers, **answers}})
+
+    def save_generated_card(self, snapshot: Task, card: TaskCard, meta: AIMetadata) -> Task:
+        return self._save_ai_fields(snapshot, {
+            "proposed_card": card.model_dump(), "card_ai": meta.model_dump(mode="json"),
+        })

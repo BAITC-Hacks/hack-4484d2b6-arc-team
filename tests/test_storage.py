@@ -46,7 +46,9 @@ def test_health_profiles_and_openapi(client):
     assert client.get("/docs").status_code == 200
     spec = client.get("/openapi.json").json()
     assert "/api/tasks/{task_id}" in spec["paths"]
-    assert not any("publish" in path or "generate" in path for path in spec["paths"])
+    assert "/api/tasks/{task_id}/questions" in spec["paths"]
+    assert "/api/tasks/{task_id}/generate-card" in spec["paths"]
+    assert not any("publish" in path for path in spec["paths"])
 
 
 def test_draft_survives_restart_with_original_text(client, db):
