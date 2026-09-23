@@ -298,3 +298,60 @@ def test_competing_manual_decisions_have_one_winner_without_affecting_other_team
         assert stored == [winner, other]
         assert other['status'] == 'submitted'
         assert points(client) == points(client, 'team-2') == 0
+
+
+def test_leaderboard_counts_tasks_not_stages_and_survives_restart(tmp_path):
+    with demo_client(tmp_path) as client:
+        initial = client.get('/api/leaderboard').json()
+        assert len(initial) == 5
+        assert all(t['completed_tasks'] == t['confirmed_milestones'] == t['points'] == 0 for t in initial)
+        assert all(t['rank'] == 1 and not any(a['earned'] for a in t['achievements']) for t in initial)
+        task = publish(client)
+        p = offer(client, task['id']).json()
+        select(client, p['id'])
+        for index in range(3):
+            stage = client.post(f"/api/proposals/{p['id']}/milestones", headers=TEAM,
+                                json={'description': f'Результат этапа {index}'}).json()
+            before = client.get('/api/leaderboard').json()[0]
+            assert before['confirmed_milestones'] == index
+            for _ in range(2):
+                assert client.post(f"/api/milestones/{stage['id']}/confirm", headers=OWNER).status_code == 200
+        board = client.get('/api/leaderboard').json()
+        first = board[0]
+        assert first['team_id'] == 'team-1'
+        assert (first['completed_tasks'], first['confirmed_milestones'], first['points'], first['businesses']) == (1, 3, 30, 1)
+        assert [a['earned'] for a in first['achievements']] == [True, True, False]
+        assert [t['rank'] for t in board] == [1, 2, 2, 2, 2]
+        # A different selected team can independently complete the same task.
+        other = offer(client, task['id'], 'team-2').json()
+        select(client, other['id'])
+        stage = client.post(f"/api/proposals/{other['id']}/milestones", headers={'X-Demo-Team-Id': 'team-2'}, json=RESULT).json()
+        client.post(f"/api/milestones/{stage['id']}/confirm", headers=OWNER)
+        tied = client.get('/api/leaderboard').json()
+        assert [t['rank'] for t in tied] == [1, 1, 3, 3, 3]
+        assert tied[1]['completed_tasks'] == 1 and tied[1]['points'] == 10
+        assert set(first) == {'team_id', 'name', 'rank', 'completed_tasks', 'confirmed_milestones', 'businesses', 'points', 'achievements'}
+    with TestClient(create_app(tmp_path / 'workflow.sqlite3', AIService(AISettings()))) as restarted:
+        assert restarted.get('/api/leaderboard').json() == tied
+
+
+def test_leaderboard_different_businesses_achievement(tmp_path):
+    with demo_client(tmp_path) as client:
+        for owner in (OWNER, OTHER):
+            draft = client.post('/api/tasks', headers=owner, json={'original_text': 'Новая задача'}).json()
+            url = f"/api/tasks/{draft['id']}"
+            confirmed = client.post(url + '/confirm', headers=owner, json={'expected_updated_at': draft['updated_at'], 'proposed_card': {'title': 'Пилот'}}).json()
+            client.post(url + '/publish', headers=owner, json={'expected_updated_at': confirmed['updated_at']})
+            proposal = offer(client, draft['id']).json()
+            client.patch(f"/api/proposals/{proposal['id']}", headers=owner, json={'status': 'selected'})
+            stage = client.post(f"/api/proposals/{proposal['id']}/milestones", headers=TEAM, json=RESULT).json()
+            client.post(f"/api/milestones/{stage['id']}/confirm", headers=owner)
+        first = client.get('/api/leaderboard').json()[0]
+        assert first['completed_tasks'] == first['businesses'] == 2
+        assert [a['earned'] for a in first['achievements']] == [True, False, True]
+        assert first['achievements'][2]['progress'] == 2
+
+
+def test_leaderboard_empty_database(tmp_path):
+    with TestClient(create_app(tmp_path / 'empty.sqlite3', AIService(AISettings()))) as client:
+        assert client.get('/api/leaderboard').json() == []

@@ -58,6 +58,26 @@ class DemoProfiles(Model):
     teams: list[Team]
 
 
+class Achievement(Model):
+    id: str
+    title: str
+    description: str
+    progress: int = Field(ge=0)
+    target: int = Field(gt=0)
+    earned: bool
+
+
+class LeaderboardTeam(Model):
+    team_id: str
+    name: str
+    rank: int = Field(ge=1)
+    completed_tasks: int = Field(ge=0)
+    confirmed_milestones: int = Field(ge=0)
+    businesses: int = Field(ge=0)
+    points: int = Field(ge=0)
+    achievements: list[Achievement]
+
+
 class TaskCard(Model):
     title: Text = ""
     context: Text = ""

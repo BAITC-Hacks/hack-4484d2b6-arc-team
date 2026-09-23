@@ -94,6 +94,7 @@
 
   function lock() {
     $("builder-fields").disabled = busy || !ready;
+    $("mission-action").disabled = busy || !ready;
     $("builder-content").setAttribute("aria-busy", String(busy));
     for (const id of ["builder-business", "builder-task", "builder-new", "builder-mode"]) $(id).disabled = busy || !ready;
     $("demo-profile").disabled = busy;
@@ -210,6 +211,7 @@
     if (!canReview() || !reviewed) throw new Error("Сначала сохраните описание и ответы, затем проверьте карточку и отметьте подтверждение сведений.");
     // Send the card atomically with the version actually reviewed. A preliminary
     // PATCH here would hide a concurrent edit by acquiring a newer version first.
+    const previousLevel = state.task.confirmed_rating?.level || "draft";
     const task = await api(`${taskPath()}/confirm`, "POST", {
       expected_updated_at: state.task.updated_at,
       proposed_card: state.card,
@@ -218,7 +220,10 @@
     state.card = structuredClone(task.proposed_card);
     state.dirty.card = false;
     persist();
-    message(`Карточка подтверждена. Готовность: ${task.confirmed_rating.score} / 100. Публикация выполняется отдельным действием.`);
+    const levels = Object.keys(levelLabels);
+    const celebration = levels.indexOf(task.confirmed_rating.level) > levels.indexOf(previousLevel)
+      ? `Новый уровень: «${levelLabels[task.confirmed_rating.level]}»! ` : "";
+    message(`${celebration}Карточка подтверждена. Готовность: ${task.confirmed_rating.score} / 100. Публикация выполняется отдельным действием.`);
   }
 
   async function publishCard() {
@@ -275,6 +280,7 @@
     const task = state.task;
     const rating = task?.confirmed_rating;
     const pending = cardEdits();
+    window.SanaGamification.renderMissions(rating, pending);
     $("builder-unrated").hidden = Boolean(rating);
     $("builder-rating").hidden = !rating;
     $("builder-level").hidden = !rating;

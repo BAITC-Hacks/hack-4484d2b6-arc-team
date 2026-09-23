@@ -1,0 +1,22 @@
+.mission-summary { background: var(--color-yellow); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.mission-summary h3 { margin: 0; font-size: 16px; }
+.mission-summary p { font-size: 14px; line-height: 1.5; }
+.mission-summary .button { width: 100%; white-space: normal; }
+.leaderboard-rule { max-width: 850px; color: var(--color-muted); line-height: 1.6; }
+.leaderboard-table-wrap { overflow-x: auto; padding: 8px 20px; }
+.leaderboard-table { width: 100%; border-collapse: collapse; min-width: 590px; }
+.leaderboard-table caption { text-align: left; padding: 16px 0; color: var(--color-muted); font-size: 14px; line-height: 1.5; }
+.leaderboard-table th, .leaderboard-table td { text-align: left; padding: 18px 12px; border-bottom: 1px solid var(--color-line); }
+.leaderboard-table thead { font-size: 13px; }
+.leaderboard-table tbody tr.is-leader { background: var(--color-yellow); }
+.leaderboard-table td { font-variant-numeric: tabular-nums; }
+.team-achievements { margin-top: 32px; }
+.team-achievements > select { display: block; max-width: 360px; margin: 10px 0 18px; }
+.achievement-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.achievement-card { padding: 20px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 12px; }
+.achievement-card.is-earned { background: var(--color-mint); }
+.achievement-card h3 { margin: 10px 0; font-size: 18px; }
+.achievement-card p { line-height: 1.5; }
+.achievement-status { font-size: 13px; font-weight: 700; }
+.achievement-card progress { width: 100%; accent-color: var(--color-ink); }
+@media (max-width: 850px) { .achievement-grid { grid-template-columns: 1fr; } }

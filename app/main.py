@@ -13,7 +13,7 @@ from app.ai import AIError, AIService
 from app.config import ai_settings, cors_origins, database_path
 from app.db import Database
 from app.models import AIRequest, AIResult, ConfirmRequest, DemoProfiles, DraftCreate, DraftUpdate, GenerateCardRequest, Task, TaskVersionRequest
-from app.models import Milestone, MilestoneCreate, ProposalCreate, ProposalDecision, ProposalView, PublishedTask, ReadinessLevel
+from app.models import Milestone, MilestoneCreate, ProposalCreate, ProposalDecision, ProposalView, PublishedTask, ReadinessLevel, LeaderboardTeam
 from app.repository import Repository, StaleTaskError, TaskStateError
 
 
@@ -103,6 +103,15 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
     @app.get("/api/demo/profiles", response_model=DemoProfiles, tags=["demo"])
     def profiles():
         return repository.profiles()
+
+    @app.get("/api/leaderboard", response_model=list[LeaderboardTeam], tags=["gamification"])
+    def leaderboard():
+        """Completed = at least one confirmed milestone per task/team, not full project delivery.
+
+        Equal completed-task counts share a competition rank (1, 1, 3).
+        Team ID only provides stable display ordering within ties.
+        """
+        return repository.leaderboard()
 
     @app.post("/api/tasks", response_model=Task, status_code=201, tags=["drafts"])
     def create_draft(payload: DraftCreate, business_id: str = Depends(business_profile)):
