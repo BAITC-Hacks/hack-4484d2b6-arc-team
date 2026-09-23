@@ -1,4 +1,4 @@
-/* API v0.2 business constructor. Scores and publication belong to the server. */
+/* Business constructor compatible with API v0.3. Publication UI is the next step. */
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -277,7 +277,7 @@
     }
     $("builder-recommendations").replaceChildren(...(state.card.ai_recommendations.length ? state.card.ai_recommendations : ["Рекомендаций пока нет."]).map((text) => element("li", "", text)));
     $("builder-questions-source").textContent = sourceText(state.task?.questions_ai, "Источник вопросов не указан.");
-    $("builder-card-source").textContent = state.dirty.card ? "Есть несохранённые правки. Они ещё не подтверждены бизнесом." : sourceText(state.task?.card_ai, "Рабочая карточка отредактирована вручную. Сведения пока не подтверждены.");
+    $("builder-card-source").textContent = state.dirty.card ? "Есть несохранённые правки. Они ещё не подтверждены бизнесом." : sourceText(state.task?.card_ai, "Рабочая карточка отредактирована вручную. Подтверждение выполняется отдельно.");
     $("builder-mode-description").textContent = sourceMode === "local"
       ? "Локальные шаблоны, без внешней AI-модели. Неизвестные сведения останутся пустыми."
       : aiStatus?.openai_configured ? "Описание и ответы будут переданы OpenAI. Проверьте результат перед подтверждением."
@@ -332,7 +332,7 @@
       acceptTask(await api(taskPath(), "PATCH", { proposed_card: state.card }));
       state.dirty.card = false;
       persist();
-      message("Правки сохранены на сервере. Карточка пока не подтверждена и не опубликована.");
+      message("Правки сохранены на сервере. Подтверждение и публикация выполняются отдельно.");
     });
   });
   document.querySelectorAll("#page-builder [data-stage]").forEach((button) => button.addEventListener("click", () => {
