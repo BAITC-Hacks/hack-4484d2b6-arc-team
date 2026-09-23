@@ -18,6 +18,7 @@ def test_detail_fixtures_use_public_card_contract_and_cover_missing_fields(tmp_p
         assert incomplete["published_card"]["success_criteria"] == ""
         assert incomplete["published_rating"]["score"] < 40
         shell = client.get("/ui").text
+        assert shell.index('src="/static/proposal-form.js"') < shell.index('src="/static/task-detail.js"')
         assert shell.index('src="/static/task-detail.js"') < shell.index('src="/static/shell.js"')
         assert 'id="catalog-preview"' not in shell
         assert client.get("/static/task-detail.js").status_code == 200

@@ -11,12 +11,17 @@
   <link rel="stylesheet" href="/static/builder.css">
   <link rel="stylesheet" href="/static/business.css">
   <link rel="stylesheet" href="/static/task-detail.css">
+  <link rel="stylesheet" href="/static/proposal-form.css">
+  <link rel="stylesheet" href="/static/team-workspace.css">
+  <script src="/static/team-api.js" defer></script>
+  <script src="/static/proposal-form.js" defer></script>
   <script src="/static/task-detail.js" defer></script>
   <script src="/static/shell.js" defer></script>
   <script src="/static/catalog.js" defer></script>
   <script src="/static/builder.js" defer></script>
   <script src="/static/business-api.js" defer></script>
   <script src="/static/business.js" defer></script>
+  <script src="/static/team-workspace.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -106,7 +111,7 @@
                       <p id="builder-publication-help">Сначала проверьте и подтвердите карточку в панели готовности.</p>
                       <p id="builder-published-snapshot" hidden></p>
                       <div class="builder-actions"><button id="builder-publish" class="button button-primary" type="button" disabled>Опубликовать задачу</button></div>
-                      <p class="field-hint">Можно опубликовать задачу с любым рейтингом, даже с 0 баллов. Каталог пока показывает демонстрационные примеры; новые публикации сохраняются на сервере.</p>
+                      <p class="field-hint">Можно опубликовать задачу с любым рейтингом, даже с 0 баллов. После публикации она появится в каталоге для команд.</p>
                     </section>
                   </section>
                 </fieldset>
@@ -141,17 +146,17 @@
             <div><p class="eyebrow">ИДЕИ, КОТОРЫМ НУЖНА ВАША КОМАНДА</p><h1 id="catalog-title">Найдите свою следующую задачу</h1><p class="subtitle">Выберите проблему, которую хочется решить. Начните с малого — создайте полезное.</p></div>
             <a class="button button-primary" href="#builder">＋ Создать задачу</a>
           </div>
-          <div class="catalog-intro"><span class="catalog-spark" aria-hidden="true">✳</span><p><strong>Хорошее решение начинается с интереса.</strong><br>Готовность показывает полноту описания. Задачи любого уровня открыты для предложений.</p><span class="badge badge-yellow">Демонстрационные карточки</span></div>
+          <div class="catalog-intro"><span class="catalog-spark" aria-hidden="true">✳</span><p><strong>Хорошее решение начинается с интереса.</strong><br>Готовность показывает полноту описания. Задачи любого уровня открыты для предложений.</p><span class="badge badge-mint">Опубликованные задачи</span></div>
           <form id="catalog-filters" class="catalog-filters" role="search" aria-label="Поиск по каталогу">
             <div class="form-field catalog-search"><label for="catalog-query">Поиск задачи</label><input id="catalog-query" class="field-control" type="search" placeholder="Название, проблема или результат…" maxlength="200" autocomplete="off"></div>
             <div class="form-field"><label for="catalog-topic">Тема</label><select id="catalog-topic" class="field-control"><option value="">Все темы</option></select></div>
             <div class="form-field"><label for="catalog-readiness">Готовность</label><select id="catalog-readiness" class="field-control"><option value="">Все уровни</option><option value="draft">Черновик · 0–39</option><option value="working">Рабочая · 40–69</option><option value="ready">Готовая · 70–89</option><option value="priority">Приоритетная · 90–100</option></select></div>
           </form>
-          <div class="catalog-toolbar"><p id="catalog-count" role="status" aria-live="polite">Загружаем задачи…</p><span>По готовности ↓</span><button id="catalog-reset" class="catalog-reset" type="button">Сбросить фильтры</button></div>
+          <div class="catalog-toolbar"><p id="catalog-count" role="status" aria-live="polite">Загружаем задачи…</p><span>По готовности ↓</span><button id="catalog-refresh" class="catalog-reset" type="button">Обновить</button><button id="catalog-reset" class="catalog-reset" type="button">Сбросить фильтры</button></div>
           <div id="catalog-grid" class="catalog-grid" aria-label="Задачи" aria-busy="true"></div>
           <div id="catalog-empty" class="panel empty-state" hidden><span class="empty-icon number-yellow" aria-hidden="true">⌕</span><h2>Пока ничего не нашлось</h2><p>Попробуйте другую тему или уберите часть фильтров.</p><button id="catalog-empty-reset" class="button button-outline" type="button">Показать все задачи</button></div>
           <div id="catalog-error" class="panel empty-state" hidden role="alert"><h2>Не удалось загрузить каталог</h2><p>Проверьте соединение и попробуйте ещё раз.</p><button id="catalog-retry" class="button button-primary" type="button">Повторить загрузку</button></div>
-          <footer class="page-footer"><span>Примеры для проверки интерфейса. Публичный API подключается на следующем этапе.</span><span>Бизнес + команды + возможности ↗</span></footer>
+          <footer class="page-footer"><span>Только опубликованные версии · рейтинг рассчитан сервером</span><span>Бизнес + команды + возможности ↗</span></footer>
         </section>
         <section id="page-business" class="page" aria-labelledby="business-title" hidden>
           <div class="page-heading"><div><p class="eyebrow">КАБИНЕТ БИЗНЕСА</p><h1 id="business-title">Мои задачи</h1><p class="subtitle">От понятной задачи — к команде, с которой хочется работать.</p></div><button id="business-create" class="button button-primary" type="button">＋ Создать задачу</button></div>
