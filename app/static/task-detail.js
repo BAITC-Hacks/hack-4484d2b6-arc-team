@@ -1,4 +1,4 @@
-/* Participant 3, step 2: read-only public task view. Source is explicitly demo;
+/* Participant 3, steps 2–3: public task view and local proposal drafts. Source is demo;
    replace loadTask with GET /api/catalog/{id} when that contract is implemented.
    Never load private /api/tasks or display proposed_card as published content. */
 (() => {
@@ -21,9 +21,10 @@
       <aside class="task-aside" aria-label="Готовность и рекомендации">
         <section class="panel task-rating"><div class="task-panel-heading"><h2>Готовность задачи</h2><span id="task-level" class="badge badge-blue"></span></div><p id="task-score" class="task-score"></p><progress id="task-progress" max="100"></progress><p class="task-caption">Иллюстрация уровня готовности. Баллы в примере не рассчитаны сервером.</p><div class="task-open-note">Задачи любого уровня доступны командам. Низкий рейтинг означает, что стоит уточнить детали.</div></section>
         <section class="panel task-ai"><div class="task-panel-heading"><h2>Рекомендации ИИ</h2><span aria-hidden="true">✳</span></div><p class="task-caption">Не требования бизнеса. Команда может предложить другой стек и подход.</p><ul id="task-recommendations"></ul><p class="task-caption">Синтетический пример рекомендаций; внешняя модель здесь не вызывается.</p></section>
-        <p class="task-caption task-next-step">Отправка предложения появится на следующем шаге. Сейчас доступно полное описание задачи.</p>
+        <section class="panel task-response"><h2>Есть идея решения?</h2><p class="task-caption">Подготовьте черновик от имени своей команды. Готовый прототип не обязателен.</p><button id="task-proposal-open" class="button button-primary" type="button">Подготовить отклик →</button></section>
       </aside>
     </div>
+    <div id="task-proposal" hidden></div>
     <footer class="page-footer"><span>Учебный пример · без реальных контактов и данных</span><span>От понятной задачи — к полезному решению ↗</span></footer>`;
   main.append(page);
   const get = id => page.querySelector(`#${id}`);
@@ -98,6 +99,8 @@
     get("task-recommendations").replaceChildren(...(recommendations.length ? recommendations : ["Рекомендации пока не добавлены."])
       .map(text => textElement("li", text)));
     get("task-body").hidden = false;
+    get("task-proposal").hidden = false;
+    window.SanaProposalForm.mount(get("task-proposal"), { id: task.id, title, source: "demo" });
   }
 
   function failure(notFound) {
@@ -112,6 +115,8 @@
   async function showTask() {
     const current = ++generation;
     controller?.abort();
+    window.SanaProposalForm.unmount();
+    get("task-proposal").hidden = true;
     if (window.location.hash.split("/")[0] !== "#task") return;
     get("task-body").hidden = get("task-failure").hidden = true;
     get("task-loading").hidden = false;
@@ -141,6 +146,11 @@
   }
 
   get("task-retry").addEventListener("click", showTask);
+  get("task-proposal-open").addEventListener("click", () => {
+    const heading = get("task-proposal").querySelector("#proposal-title");
+    heading?.focus({ preventScroll: true });
+    get("task-proposal").scrollIntoView({ block: "start" });
+  });
   window.addEventListener("hashchange", showTask);
   showTask();
 })();
