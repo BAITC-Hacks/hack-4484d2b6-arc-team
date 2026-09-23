@@ -7,7 +7,9 @@
   <title>Конструктор задачи · AI Sana Challenge Hub</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/catalog.css">
   <script src="/static/shell.js" defer></script>
+  <script src="/static/catalog.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -93,13 +95,35 @@
           <footer class="page-footer"><span>Бизнес + студенты + технологии</span><span>Маленький шаг. Большие возможности. <span aria-hidden="true">↗</span></span></footer>
         </section>
 
-        <section id="page-catalog" class="page" aria-labelledby="catalog-title" hidden><p class="eyebrow">ОБЩЕЕ ПРОСТРАНСТВО</p><h1 id="catalog-title">Каталог задач</h1><div class="panel empty-state"><span class="empty-icon number-blue"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#grid"/></svg></span><h2>Здесь встретятся задачи и команды</h2><p>Каталог появится на следующем этапе. Здесь можно будет найти задачу по теме и готовности.</p><span class="badge badge-yellow">Страница в разработке</span></div></section>
+        <section id="page-catalog" class="page" aria-labelledby="catalog-title" hidden>
+          <div class="page-heading catalog-heading">
+            <div><p class="eyebrow">ИДЕИ, КОТОРЫМ НУЖНА ВАША КОМАНДА</p><h1 id="catalog-title">Найдите свою следующую задачу</h1><p class="subtitle">Выберите проблему, которую хочется решить. Начните с малого — создайте полезное.</p></div>
+            <a class="button button-primary" href="#builder">＋ Создать задачу</a>
+          </div>
+          <div class="catalog-intro"><span class="catalog-spark" aria-hidden="true">✳</span><p><strong>Хорошее решение начинается с интереса.</strong><br>Готовность показывает полноту описания. Задачи любого уровня открыты для предложений.</p><span class="badge badge-yellow">Демонстрационные карточки</span></div>
+          <form id="catalog-filters" class="catalog-filters" role="search" aria-label="Поиск по каталогу">
+            <div class="form-field catalog-search"><label for="catalog-query">Поиск задачи</label><input id="catalog-query" class="field-control" type="search" placeholder="Название, проблема или результат…" maxlength="200" autocomplete="off"></div>
+            <div class="form-field"><label for="catalog-topic">Тема</label><select id="catalog-topic" class="field-control"><option value="">Все темы</option></select></div>
+            <div class="form-field"><label for="catalog-readiness">Готовность</label><select id="catalog-readiness" class="field-control"><option value="">Все уровни</option><option value="draft">Черновик · 0–39</option><option value="working">Рабочая · 40–69</option><option value="ready">Готовая · 70–89</option><option value="priority">Приоритетная · 90–100</option></select></div>
+          </form>
+          <div class="catalog-toolbar"><p id="catalog-count" role="status" aria-live="polite">Загружаем задачи…</p><span>По готовности ↓</span><button id="catalog-reset" class="catalog-reset" type="button">Сбросить фильтры</button></div>
+          <div id="catalog-grid" class="catalog-grid" aria-label="Задачи" aria-busy="true"></div>
+          <div id="catalog-empty" class="panel empty-state" hidden><span class="empty-icon number-yellow" aria-hidden="true">⌕</span><h2>Пока ничего не нашлось</h2><p>Попробуйте другую тему или уберите часть фильтров.</p><button id="catalog-empty-reset" class="button button-outline" type="button">Показать все задачи</button></div>
+          <div id="catalog-error" class="panel empty-state" hidden role="alert"><h2>Не удалось загрузить каталог</h2><p>Проверьте соединение и попробуйте ещё раз.</p><button id="catalog-retry" class="button button-primary" type="button">Повторить загрузку</button></div>
+          <footer class="page-footer"><span>Примеры для проверки интерфейса. Публичный API подключается на следующем этапе.</span><span>Бизнес + команды + возможности ↗</span></footer>
+        </section>
         <section id="page-business" class="page" aria-labelledby="business-title" hidden><p class="eyebrow">КАБИНЕТ БИЗНЕСА</p><h1 id="business-title">Мои задачи</h1><div class="panel empty-state"><span class="empty-icon number-mint"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#case"/></svg></span><h2>Место для ваших будущих решений</h2><p>Здесь появятся задачи бизнеса, предложения команд и результаты этапов.</p><a class="button button-outline" href="#builder">Посмотреть конструктор <span aria-hidden="true">→</span></a></div></section>
         <section id="page-proposals" class="page" aria-labelledby="proposals-title" hidden><p class="eyebrow">КАБИНЕТ КОМАНДЫ</p><h1 id="proposals-title">Мои отклики</h1><div class="panel empty-state"><span class="empty-icon number-yellow"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#message"/></svg></span><h2>От идеи к первому результату</h2><p>Здесь команда сможет следить за своими предложениями и отправлять результаты выбранных этапов.</p><span class="badge badge-yellow">Страница в разработке</span></div></section>
       </main>
     </div>
   </div>
   <p id="shell-announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <dialog id="catalog-preview" class="catalog-preview" aria-labelledby="catalog-preview-title">
+    <div class="catalog-preview-header"><span class="badge badge-yellow">Предпросмотр примера</span><button id="catalog-preview-close" class="button button-outline" type="button" aria-label="Закрыть предпросмотр">✕</button></div>
+    <h2 id="catalog-preview-title"></h2><p id="catalog-preview-description"></p>
+    <h3>Ожидаемый результат</h3><p id="catalog-preview-result"></p>
+    <p class="catalog-preview-note">Полная страница задачи и отправка предложения появятся на следующих шагах. Рейтинг не ограничивает возможность отклика.</p>
+  </dialog>
   <noscript><p class="noscript-notice">Для переключения разделов и демопрофиля включите JavaScript. Сейчас показан образец конструктора.</p></noscript>
 </body>
 </html>
