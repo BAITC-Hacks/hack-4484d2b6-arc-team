@@ -8,6 +8,8 @@
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="stylesheet" href="/static/catalog.css">
+  <link rel="stylesheet" href="/static/task-detail.css">
+  <script src="/static/task-detail.js" defer></script>
   <script src="/static/shell.js" defer></script>
   <script src="/static/catalog.js" defer></script>
 </head>
@@ -118,12 +120,6 @@
     </div>
   </div>
   <p id="shell-announcement" class="sr-only" role="status" aria-live="polite"></p>
-  <dialog id="catalog-preview" class="catalog-preview" aria-labelledby="catalog-preview-title">
-    <div class="catalog-preview-header"><span class="badge badge-yellow">Предпросмотр примера</span><button id="catalog-preview-close" class="button button-outline" type="button" aria-label="Закрыть предпросмотр">✕</button></div>
-    <h2 id="catalog-preview-title"></h2><p id="catalog-preview-description"></p>
-    <h3>Ожидаемый результат</h3><p id="catalog-preview-result"></p>
-    <p class="catalog-preview-note">Полная страница задачи и отправка предложения появятся на следующих шагах. Рейтинг не ограничивает возможность отклика.</p>
-  </dialog>
   <noscript><p class="noscript-notice">Для переключения разделов и демопрофиля включите JavaScript. Сейчас показан образец конструктора.</p></noscript>
 </body>
 </html>
