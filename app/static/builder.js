@@ -1,4 +1,4 @@
-/* Business constructor compatible with API v0.3. Publication UI is the next step. */
+/* Business constructor, confirmation and publication via API v0.3. No client scoring. */
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -24,7 +24,14 @@
   let failedOperation = null;
   let aiStatus = null;
   let sourceMode = "local";
+  let reviewed = false;
+  let versionConflict = false;
   const memory = new Map();
+  const levelLabels = { draft: "Черновик", working: "Рабочая", ready: "Готовая", priority: "Приоритетная" };
+  const sourceEdits = () => state.dirty.draft || state.dirty.answers;
+  const cardEdits = () => state.dirty.card || state.topic !== state.task?.topic || state.task?.has_unconfirmed_changes !== false;
+  const canReview = () => Boolean(state.task && state.cardReady && state.stage === "card" && !sourceEdits() && !versionConflict && cardEdits());
+  const canPublish = () => Boolean(state.task?.confirmed_rating && state.task.has_unpublished_changes && !cardEdits() && !sourceEdits() && !versionConflict);
 
   function storageGet(key) {
     if (memory.has(key)) return memory.get(key);
@@ -92,6 +99,11 @@
     $("demo-profile").disabled = busy;
     $("builder-retry").disabled = busy;
     $("builder-local").disabled = busy;
+    $("builder-reviewed").disabled = busy || !ready || !canReview();
+    $("builder-confirm").disabled = busy || !ready || !canReview() || !reviewed;
+    $("builder-publish").disabled = busy || !ready || !canPublish();
+    $("builder-save-materials").disabled = busy || !ready;
+    $("builder-missing-fields").querySelectorAll("button").forEach((button) => { button.disabled = busy || !ready; });
     document.querySelectorAll("#page-builder [data-stage]").forEach((button) => {
       button.disabled = busy || !ready || (button.dataset.stage === "questions" && !state.task?.questions.length)
         || (button.dataset.stage === "card" && !state.cardReady);
@@ -109,6 +121,10 @@
     try {
       await operation();
     } catch (error) {
+      if (["task_changed", "confirmation_required"].includes(error.code)) {
+        versionConflict = true;
+        reviewed = false;
+      }
       persist();
       $("builder-error-message").textContent = `${error.message} Ввод сохранён в текущей форме.`;
       $("builder-error-details").replaceChildren();
@@ -116,22 +132,26 @@
         $("builder-error-details").append(element("li", "", `${detail.field}: ${detail.message}`));
       }
       $("builder-local").hidden = !(allowsLocal && error.localAvailable);
-      // Stale AI results must be refreshed before another generation attempt.
-      failedOperation = error.code === "task_changed"
+      // Refresh conflicts for review; never retry a confirmation automatically.
+      failedOperation = ["task_changed", "confirmation_required"].includes(error.code)
         ? () => run("Загружаем актуальные сведения…", async () => { await openTask(state.task.id); message("Сведения обновлены. Ваши несохранённые правки оставлены в форме; проверьте их перед повтором."); })
         : () => run(label, operation, allowsLocal);
-      $("builder-retry").textContent = error.code === "task_changed" ? "Обновить сведения" : "Повторить";
+      $("builder-retry").textContent = ["task_changed", "confirmation_required"].includes(error.code) ? "Обновить сведения" : "Повторить";
       $("builder-error").hidden = false;
       message("Действие не завершено. Можно повторить запрос.");
     } finally {
       busy = false;
       render();
       lock();
-      if (state.stage !== initialStage && !$("page-builder").hidden) focusStage();
+      if (!$("page-builder").hidden) {
+        if (!$("builder-error").hidden) $("builder-error").focus();
+        else if (state.stage !== initialStage) focusStage();
+      }
     }
   }
 
   function acceptTask(task) {
+    reviewed = false;
     const wasNew = !state.task;
     state.task = task;
     const index = tasks.findIndex((item) => item.id === task.id);
@@ -186,13 +206,36 @@
     message("Рабочая карточка сформирована и сохранена. Проверьте сведения и внесите правки.");
   }
 
+  async function confirmCard() {
+    if (!canReview() || !reviewed) throw new Error("Сначала сохраните описание и ответы, затем проверьте карточку и отметьте подтверждение сведений.");
+    // Send the card atomically with the version actually reviewed. A preliminary
+    // PATCH here would hide a concurrent edit by acquiring a newer version first.
+    const task = await api(`${taskPath()}/confirm`, "POST", {
+      expected_updated_at: state.task.updated_at,
+      proposed_card: state.card,
+    });
+    acceptTask(task);
+    state.card = structuredClone(task.proposed_card);
+    state.dirty.card = false;
+    persist();
+    message(`Карточка подтверждена. Готовность: ${task.confirmed_rating.score} / 100. Публикация выполняется отдельным действием.`);
+  }
+
+  async function publishCard() {
+    if (!canPublish()) throw new Error("Проверьте и подтвердите текущую карточку перед публикацией.");
+    acceptTask(await api(`${taskPath()}/publish`, "POST", { expected_updated_at: state.task.updated_at }));
+    message("Подтверждённая версия опубликована на сервере. Каталог пока показывает демонстрационные примеры.");
+  }
+
   async function openTask(taskId) {
+    reviewed = false;
     const backup = cached(taskId);
     // Restore local input before the network call; a failed GET must not erase it.
     state = backup || fresh();
-    if (!taskId) { persist(); return; }
+    if (!taskId) { versionConflict = false; persist(); return; }
     const task = await api(`/api/tasks/${encodeURIComponent(taskId)}`);
     state.task = task;
+    versionConflict = false;
     if (!backup?.dirty.draft) { state.text = task.draft_text; state.topic = task.topic; state.dirty.draft = false; }
     if (!backup?.dirty.answers) { state.answers = { ...task.answers }; state.dirty.answers = false; }
     if (!backup?.dirty.card) { state.card = structuredClone(task.proposed_card); state.dirty.card = false; }
@@ -228,6 +271,90 @@
   }
 
   function sourceText(meta, fallback) { return meta ? `${meta.message}${meta.model ? ` Модель: ${meta.model}.` : ""}` : fallback; }
+  function renderReadiness() {
+    const task = state.task;
+    const rating = task?.confirmed_rating;
+    const pending = cardEdits();
+    $("builder-unrated").hidden = Boolean(rating);
+    $("builder-rating").hidden = !rating;
+    $("builder-level").hidden = !rating;
+    $("builder-score").textContent = rating ? rating.score : "";
+    $("builder-score-meter").value = rating ? rating.score : 0;
+    $("builder-level").textContent = rating ? levelLabels[rating.level] || rating.level : "";
+    $("builder-level").className = `badge ${rating && ["ready", "priority"].includes(rating.level) ? "badge-mint" : "badge-blue"}`;
+    $("builder-card-state").textContent = pending ? "Рабочая версия" : "Подтверждена";
+    $("builder-card-state").className = `badge ${pending ? "badge-yellow" : "badge-mint"}`;
+    const changes = $("builder-rating-changes");
+    changes.dataset.pending = String(pending);
+    changes.textContent = !rating ? "Рейтинг появится после ручного подтверждения карточки. Незаполненные сведения не дают баллов."
+      : pending ? "Есть неподтверждённые изменения. Показан прежний рейтинг; после проверки подтвердите новую версию."
+        : sourceEdits() ? "Описание или ответы изменены. Они не меняют карточку и рейтинг автоматически. Проверьте, нужно ли обновить карточку."
+          : "Карточка и тема подтверждены. Баллы рассчитаны сервером.";
+
+    const expanded = new Set([...$("builder-rating-categories").querySelectorAll("details[open]")].map((node) => node.dataset.category));
+    $("builder-rating-categories").replaceChildren();
+    for (const category of rating?.categories || []) {
+      const details = element("details", "builder-rating-category");
+      details.dataset.category = category.key;
+      details.open = expanded.has(category.key);
+      const summary = element("summary");
+      const complete = category.points === category.maximum;
+      const indicator = element("span", `category-indicator${complete ? " complete" : category.points ? " partial" : ""}`, complete ? "✓" : category.points ? "◷" : "");
+      indicator.setAttribute("aria-hidden", "true");
+      const score = element("span", "category-score");
+      score.append(element("strong", "", category.points), document.createTextNode(` / ${category.maximum}`));
+      summary.append(indicator, element("span", "", category.label), score, element("span", "chevron", "›"));
+      const list = element("ul");
+      for (const field of category.fields) {
+        const item = element("li");
+        item.append(element("span", "", field.label), element("span", "", `${field.points} / ${field.maximum}`));
+        list.append(item);
+      }
+      details.append(summary, list);
+      $("builder-rating-categories").append(details);
+    }
+    $("builder-missing").hidden = !rating;
+    $("builder-missing-fields").replaceChildren();
+    const fieldLabels = Object.fromEntries(fields.map(([key, label]) => [key, label]));
+    for (const key of rating?.missing_fields || []) {
+      const item = element("li");
+      const button = element("button", "", `${fieldLabels[key] || key} →`);
+      button.type = "button";
+      button.dataset.missingField = key;
+      button.addEventListener("click", () => {
+        if (busy) return;
+        state.stage = "card";
+        persist(); render(); lock();
+        $(`builder-card-${key}`)?.focus();
+      });
+      item.append(button);
+      $("builder-missing-fields").append(item);
+    }
+    $("builder-missing-complete").hidden = !rating || Boolean(rating.missing_fields.length);
+    $("builder-reviewed").checked = reviewed;
+    $("builder-reviewed").closest("label").hidden = Boolean(rating) && !pending;
+    $("builder-review-card").hidden = state.stage === "card" || !state.cardReady;
+    $("builder-confirm").textContent = rating && !pending ? "Сведения подтверждены" : rating ? "Подтвердить изменения" : "Сохранить и подтвердить";
+    $("builder-save-materials").hidden = !sourceEdits();
+    $("builder-confirm-help").textContent = versionConflict ? "Задача изменилась. Обновите сведения через сообщение об ошибке и проверьте карточку заново."
+      : !state.cardReady ? "Сначала сформируйте карточку по описанию и ответам."
+        : sourceEdits() ? "Сначала сохраните описание и ответы. Затем проверьте, что карточка отражает ваши изменения."
+          : "Подтверждение сохранит карточку и пересчитает рейтинг. Публикация — отдельное действие.";
+
+    const published = task?.status === "published";
+    $("builder-publication-state").textContent = published ? "Опубликована" : "Не опубликована";
+    $("builder-publication-state").className = `badge ${published ? "badge-mint" : "badge-yellow"}`;
+    $("builder-publish").textContent = published ? task.has_unpublished_changes || pending ? "Обновить публикацию" : "Публикация актуальна" : "Опубликовать задачу";
+    $("builder-publication-help").textContent = !rating ? "Сначала проверьте и подтвердите карточку в панели готовности."
+      : pending || sourceEdits() ? published ? "Правки ещё не опубликованы. Предыдущая публикация сохранена; проверьте и подтвердите новую карточку."
+        : "Проверьте и подтвердите текущие изменения перед публикацией."
+        : task.has_unpublished_changes ? published ? "Новая версия подтверждена. Опубликуйте её, чтобы заменить предыдущую публикацию."
+          : "Карточка подтверждена и готова к публикации. Низкий рейтинг не ограничивает публикацию."
+          : "Опубликована последняя подтверждённая версия. Дальнейшие правки останутся рабочими до нового подтверждения и публикации.";
+    $("builder-published-snapshot").hidden = !task?.published_card;
+    $("builder-published-snapshot").textContent = task?.published_card
+      ? `В публикации: «${task.published_card.title}» · ${task.published_rating.score} / 100 · ${levelLabels[task.published_rating.level] || task.published_rating.level}.` : "";
+  }
   function render() {
     $("builder-draft").value = state.text;
     $("builder-char-count").textContent = state.text.length.toLocaleString("ru-RU");
@@ -282,6 +409,7 @@
       ? "Локальные шаблоны, без внешней AI-модели. Неизвестные сведения останутся пустыми."
       : aiStatus?.openai_configured ? "Описание и ответы будут переданы OpenAI. Проверьте результат перед подтверждением."
         : "OpenAI не настроен на сервере. Можно выбрать локальный режим или повторить после настройки.";
+    renderReadiness();
     showRole();
   }
   function showRole() {
@@ -294,7 +422,10 @@
   }
   function dirty(kind) {
     state.dirty[kind] = true;
+    reviewed = false;
     persist();
+    renderReadiness();
+    lock();
     message("Есть несохранённые изменения. Сохраните их на сервере перед завершением работы.");
   }
 
@@ -335,6 +466,16 @@
       message("Правки сохранены на сервере. Подтверждение и публикация выполняются отдельно.");
     });
   });
+  $("builder-reviewed").addEventListener("change", (event) => { reviewed = event.target.checked; lock(); });
+  $("builder-confirm").addEventListener("click", () => {
+    if (!$("builder-card-form").reportValidity()) return;
+    run("Сохраняем и подтверждаем карточку…", confirmCard);
+  });
+  $("builder-publish").addEventListener("click", () => run("Публикуем подтверждённую версию…", publishCard));
+  $("builder-save-materials").addEventListener("click", () => run("Сохраняем описание и ответы…", async () => {
+    await saveAnswers();
+    message("Описание и ответы сохранены. Проверьте, что карточка отражает эти сведения, перед подтверждением.");
+  }));
   document.querySelectorAll("#page-builder [data-stage]").forEach((button) => button.addEventListener("click", () => {
     if (busy) return;
     state.stage = button.dataset.stage;

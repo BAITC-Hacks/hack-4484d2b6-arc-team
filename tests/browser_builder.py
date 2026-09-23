@@ -104,7 +104,7 @@ def verify(browser, url, repository, output):
     task = repository.get_task(task_id, "business-1")
     assert getattr(task.proposed_card, task.questions[0].field) == "", "unknown answer became a fact"
     assert task.confirmed_card is None and task.published_card is None
-    b.check('[...document.querySelectorAll("#builder-stage-card button")].filter(e=>e.textContent.includes("Подтвердить")||e.textContent.includes("Опубликовать")).every(e=>e.disabled)', "unavailable publication cannot claim success")
+    b.check('document.querySelector("#builder-confirm").disabled && document.querySelector("#builder-publish").disabled', "manual review is required before confirmation and publication")
 
     title = '<img src=x onerror="window.xss=true"> Доставка'
     b.fill("#builder-card-title", title)
@@ -225,6 +225,8 @@ def main():
             assert server.started, "temporary app did not start"
             browser = Browser(args.webdriver)
             verify(browser, f"http://127.0.0.1:{port}", Repository(database), args.screenshots)
+            from browser_readiness import verify_readiness
+            verify_readiness(browser, f"http://127.0.0.1:{port}", Repository(database), args.screenshots)
         finally:
             if browser:
                 browser.request("DELETE", browser.path)

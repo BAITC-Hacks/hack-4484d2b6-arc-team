@@ -63,7 +63,7 @@
               <button id="builder-new" class="button button-outline" type="button" disabled>＋ Новая задача</button>
             </div>
             <p id="builder-storage-warning" class="builder-callout" hidden>Браузер не разрешает сохранять локальную копию. Не закрывайте страницу до сохранения на сервере.</p>
-            <div id="builder-error" class="builder-error" role="alert" hidden><p id="builder-error-message"></p><ul id="builder-error-details"></ul><div class="builder-actions"><button id="builder-retry" class="button button-outline" type="button">Повторить</button><button id="builder-local" class="button button-outline" type="button" hidden>Продолжить в локальном режиме</button></div></div>
+            <div id="builder-error" class="builder-error" role="alert" tabindex="-1" hidden><p id="builder-error-message"></p><ul id="builder-error-details"></ul><div class="builder-actions"><button id="builder-retry" class="button button-outline" type="button">Повторить</button><button id="builder-local" class="button button-outline" type="button" hidden>Продолжить в локальном режиме</button></div></div>
             <p id="builder-status" class="builder-status" role="status" aria-live="polite">Подключаем конструктор…</p>
             <div id="builder-content" class="builder-layout">
               <div class="builder-content">
@@ -93,17 +93,38 @@
                     <div class="builder-actions"><button class="builder-text-button" data-stage="draft" type="button">← Изменить описание</button><button id="builder-more-questions" class="builder-text-button" type="button">Обновить вопросы</button></div>
                   </section>
                   <section id="builder-stage-card" class="builder-stage" aria-labelledby="card-heading" hidden>
-                    <div class="field-heading"><h2 id="card-heading" tabindex="-1">Проверьте карточку задачи</h2><span class="badge badge-yellow">Рабочая версия</span></div>
+                    <div class="field-heading"><h2 id="card-heading" tabindex="-1">Проверьте карточку задачи</h2><span id="builder-card-state" class="badge badge-yellow">Рабочая версия</span></div>
                     <p class="field-hint">Исправьте формулировки. Неизвестные сведения оставьте пустыми — мы не добавим их за вас.</p>
                     <p id="builder-card-source" class="builder-callout"></p>
                     <form id="builder-card-form" class="panel draft-panel"><div id="builder-card-fields" class="builder-card-fields"></div><div class="builder-actions"><button class="button button-primary" type="submit">Сохранить правки</button><button class="button button-outline" data-stage="questions" type="button">← К ответам</button></div></form>
                     <section class="panel builder-recommendations" aria-labelledby="recommendations-heading"><h3 id="recommendations-heading">Рекомендованный подход</h3><p class="field-hint">Советы отдельно от требований бизнеса. Команда вправе предложить другой подход.</p><ul id="builder-recommendations"></ul></section>
-                    <section class="builder-callout" aria-labelledby="publication-heading"><h3 id="publication-heading">Подтверждение и публикация</h3><p>Правки сохраняются в рабочей версии. Подтверждение и публикация уже доступны через API; кнопки подключим на следующем шаге интерфейса.</p><div class="builder-actions"><button class="button button-outline" type="button" disabled>Подтвердить карточку</button><button class="button button-outline" type="button" disabled>Опубликовать</button></div></section>
+                    <section class="builder-callout builder-publication" aria-labelledby="publication-heading">
+                      <div class="field-heading"><h3 id="publication-heading">Публикация задачи</h3><span id="builder-publication-state" class="badge badge-yellow">Не опубликована</span></div>
+                      <p id="builder-publication-help">Сначала проверьте и подтвердите карточку в панели готовности.</p>
+                      <p id="builder-published-snapshot" hidden></p>
+                      <div class="builder-actions"><button id="builder-publish" class="button button-primary" type="button" disabled>Опубликовать задачу</button></div>
+                      <p class="field-hint">Можно опубликовать задачу с любым рейтингом, даже с 0 баллов. Каталог пока показывает демонстрационные примеры; новые публикации сохраняются на сервере.</p>
+                    </section>
                   </section>
                 </fieldset>
               </div>
               <aside class="readiness-column" aria-label="Состояние задачи">
-                <section class="panel readiness-panel"><h2>Готовность задачи</h2><p class="builder-unrated">Панель в разработке</p><p class="field-hint">Сервер рассчитывает рейтинг при подтверждении карточки. Отображение оценки подключим на следующем шаге.</p><div class="improvement-tip"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#bulb"/></svg><div><strong>Сначала — понятная задача</strong><p>Описание, ответы и правки сохраняются отдельно от подтверждённой версии.</p></div></div></section>
+                <section class="panel readiness-panel" aria-labelledby="builder-readiness-heading">
+                  <div class="readiness-header"><h2 id="builder-readiness-heading">Готовность задачи</h2><span id="builder-level" class="badge badge-blue" hidden></span></div>
+                  <p id="builder-unrated" class="builder-unrated">Ещё не рассчитана</p>
+                  <div id="builder-rating" hidden><div class="score"><strong id="builder-score"></strong><span>/ 100</span></div><progress id="builder-score-meter" max="100" value="0" aria-label="Подтверждённая готовность задачи"></progress><p class="field-hint">Последняя подтверждённая версия</p></div>
+                  <p id="builder-rating-changes" class="builder-rating-changes" role="status" aria-live="polite">Проверьте карточку и подтвердите сведения — сервер рассчитает рейтинг.</p>
+                  <div id="builder-rating-categories" class="builder-rating-categories"></div>
+                  <section id="builder-missing" class="builder-missing" aria-labelledby="builder-missing-heading" hidden><h3 id="builder-missing-heading">Что ещё уточнить</h3><p class="field-hint">По последней подтверждённой версии:</p><ul id="builder-missing-fields"></ul><p id="builder-missing-complete" hidden>Все сведения для рейтинга заполнены.</p></section>
+                  <div class="builder-confirmation">
+                    <button id="builder-review-card" class="button button-outline" data-stage="card" type="button" disabled>Перейти к проверке карточки</button>
+                    <label class="builder-review-label" for="builder-reviewed"><input id="builder-reviewed" type="checkbox" disabled><span>Я проверил(а) сведения в карточке и подтверждаю их.</span></label>
+                    <button id="builder-confirm" class="button button-primary" type="button" disabled>Сохранить и подтвердить</button>
+                    <p id="builder-confirm-help" class="field-hint">Подтверждение не публикует задачу.</p>
+                    <button id="builder-save-materials" class="builder-text-button" type="button" hidden>Сохранить описание и ответы</button>
+                  </div>
+                  <p class="field-hint builder-rating-disclaimer">Рейтинг отражает полноту описания. Он не гарантирует достоверность сведений или успех проекта.</p>
+                </section>
                 <section class="panel builder-mode"><label for="builder-mode">Как подготовить карточку</label><select id="builder-mode" class="field-control" disabled><option value="local">Локальный режим</option><option value="openai">OpenAI</option></select><p id="builder-mode-description" class="field-hint">Проверяем доступные режимы…</p></section>
                 <div class="quiet-note"><span class="small-star" aria-hidden="true">✳</span><p>Хорошая задача — первый шаг<br>к полезному решению.</p></div>
               </aside>
