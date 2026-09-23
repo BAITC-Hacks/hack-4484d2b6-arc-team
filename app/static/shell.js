@@ -8,6 +8,7 @@
     task: "Описание задачи",
     business: "Мои задачи",
     proposals: "Мои отклики",
+    leaderboard: "Лидеры команд",
   };
   const profileSelect = document.querySelector("#demo-profile");
   const announcement = document.querySelector("#shell-announcement");

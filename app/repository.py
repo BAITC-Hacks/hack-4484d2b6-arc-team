@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.db import Database
 from app.models import (AIMetadata, DemoProfiles, DraftCreate, DraftUpdate, Milestone, MilestoneCreate,
-                        ProposalCreate, ProposalView, PublishedTask, Question, Task, TaskCard)
+                        ProposalCreate, ProposalView, PublishedTask, Question, Task, TaskCard, LeaderboardTeam)
 from app.scoring import calculate_rating, is_filled
 
 JSON_FIELDS = {"questions", "answers", "proposed_card", "confirmed_card", "confirmed_rating", "published_card", "published_rating", "questions_ai", "card_ai"}
@@ -80,6 +80,40 @@ class Repository:
     def business_exists(self, business_id: str) -> bool:
         with self.db.connect() as connection:
             return connection.execute("SELECT 1 FROM business_profiles WHERE id = ?", (business_id,)).fetchone() is not None
+
+    def leaderboard(self) -> list[LeaderboardTeam]:
+        # Derive everything from the confirmed ledger; no second balance to synchronise.
+        with self.db.connect() as connection:
+            rows = connection.execute("""
+                SELECT t.id AS team_id, t.name,
+                       COUNT(DISTINCT CASE WHEN m.id IS NOT NULL THEN p.task_id END) AS completed_tasks,
+                       COUNT(m.id) AS confirmed_milestones,
+                       COUNT(DISTINCT CASE WHEN m.id IS NOT NULL THEN task.business_id END) AS businesses,
+                       COALESCE(SUM(m.points_awarded), 0) AS points
+                FROM teams t
+                LEFT JOIN proposals p ON p.team_id=t.id
+                LEFT JOIN tasks task ON task.id=p.task_id
+                LEFT JOIN milestones m ON m.proposal_id=p.id AND m.status='confirmed'
+                GROUP BY t.id ORDER BY completed_tasks DESC, t.id
+            """).fetchall()
+        result = []
+        previous = None
+        rank = 1
+        for position, row in enumerate(rows, 1):
+            data = dict(row)
+            if data['completed_tasks'] != previous:
+                rank = position
+            previous = data['completed_tasks']
+            rules = (
+                ('first_result', 'Первый результат', 'Бизнес подтвердил первый этап.', data['confirmed_milestones'], 1),
+                ('three_results', 'Довели до результата', 'Бизнес подтвердил три этапа.', data['confirmed_milestones'], 3),
+                ('different_businesses', 'Разный опыт', 'Есть подтверждённые этапы для двух разных бизнесов.', data['businesses'], 2),
+            )
+            achievements = [dict(id=key, title=title, description=description,
+                                 progress=min(progress, target), target=target, earned=progress >= target)
+                            for key, title, description, progress, target in rules]
+            result.append(LeaderboardTeam(**data, rank=rank, achievements=achievements))
+        return result
 
     def team_exists(self, team_id: str) -> bool:
         with self.db.connect() as connection:

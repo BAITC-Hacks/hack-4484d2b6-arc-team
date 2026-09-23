@@ -19,6 +19,8 @@
   <script src="/static/task-detail.js" defer></script>
   <script src="/static/shell.js" defer></script>
   <script src="/static/catalog.js" defer></script>
+  <link rel="stylesheet" href="/static/gamification.css">
+  <script src="/static/gamification.js" defer></script>
   <script src="/static/builder.js" defer></script>
   <script src="/static/business-api.js" defer></script>
   <script src="/static/business.js" defer></script>
@@ -38,6 +40,7 @@
         <a class="nav-link" href="#catalog" data-page="catalog"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#grid"/></svg>Каталог задач</a>
         <a class="nav-link" href="#business" data-page="business"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#case"/></svg>Мои задачи</a>
         <a class="nav-link" href="#proposals" data-page="proposals"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#message"/></svg>Мои отклики</a>
+        <a class="nav-link" href="#leaderboard" data-page="leaderboard"><span aria-hidden="true">☆</span> Лидеры команд</a>
       </nav>
       <a class="button button-outline create-button" href="#builder" data-page="builder" aria-current="page"><span aria-hidden="true">＋</span> Создать задачу</a>
 
@@ -123,6 +126,13 @@
                   <p id="builder-unrated" class="builder-unrated">Ещё не рассчитана</p>
                   <div id="builder-rating" hidden><div class="score"><strong id="builder-score"></strong><span>/ 100</span></div><progress id="builder-score-meter" max="100" value="0" aria-label="Подтверждённая готовность задачи"></progress><p class="field-hint">Последняя подтверждённая версия</p></div>
                   <p id="builder-rating-changes" class="builder-rating-changes" role="status" aria-live="polite">Проверьте карточку и подтвердите сведения — сервер рассчитает рейтинг.</p>
+                  <section id="builder-missions" class="mission-summary" hidden aria-labelledby="missions-title">
+                    <h3 id="missions-title">7 шагов к понятной задаче</h3>
+                    <p id="mission-progress"></p>
+                    <p id="mission-next"></p>
+                    <button id="mission-action" class="button button-outline" type="button">Уточнить поле →</button>
+                    <p class="field-hint">Шаги засчитываются после подтверждения. Публикация доступна при любом балле.</p>
+                  </section>
                   <div id="builder-rating-categories" class="builder-rating-categories"></div>
                   <section id="builder-missing" class="builder-missing" aria-labelledby="builder-missing-heading" hidden><h3 id="builder-missing-heading">Что ещё уточнить</h3><p class="field-hint">По последней подтверждённой версии:</p><ul id="builder-missing-fields"></ul><p id="builder-missing-complete" hidden>Все сведения для рейтинга заполнены.</p></section>
                   <div class="builder-confirmation">
@@ -181,6 +191,18 @@
           <footer class="page-footer"><span>Демонстрационные профили · решения подтверждаются сервером</span><span>Бизнес + студенты + полезные результаты ↗</span></footer>
         </section>
         <section id="page-proposals" class="page" aria-labelledby="proposals-title" hidden><p class="eyebrow">КАБИНЕТ КОМАНДЫ</p><h1 id="proposals-title">Мои отклики</h1><div class="panel empty-state"><span class="empty-icon number-yellow"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#message"/></svg></span><h2>От идеи к первому результату</h2><p>Здесь команда сможет следить за своими предложениями и отправлять результаты выбранных этапов.</p><span class="badge badge-yellow">Страница в разработке</span></div></section>
+        <section id="page-leaderboard" class="page" aria-labelledby="leaderboard-title" hidden>
+          <div class="page-heading"><div><p class="eyebrow">ОТ ИДЕИ К ПОДТВЕРЖДЁННОМУ РЕЗУЛЬТАТУ</p><h1 id="leaderboard-title">Лидеры команд</h1><p class="subtitle">Каждая решённая задача — опыт, который остаётся с вами.</p></div><button id="leaderboard-refresh" class="button button-outline" type="button">Обновить</button></div>
+          <p class="leaderboard-rule">В этом рейтинге выполненная задача — задача, по которой бизнес подтвердил хотя бы один этап команды. Это не означает завершение всего проекта. Несколько этапов одной задачи считаются одной задачей.</p>
+          <p id="leaderboard-status" role="status" aria-live="polite"></p>
+          <div id="leaderboard-content" hidden>
+            <div class="panel leaderboard-table-wrap" tabindex="0" role="region" aria-label="Таблица лидеров, можно прокрутить по горизонтали">
+              <table class="leaderboard-table"><caption>По количеству выполненных задач. При равенстве — одинаковое место; баллы не влияют на место.</caption><thead><tr><th scope="col">Место</th><th scope="col">Команда</th><th scope="col">Выполнено задач</th><th scope="col">Подтверждено этапов</th><th scope="col">Баллы</th></tr></thead><tbody id="leaderboard-rows"></tbody></table>
+            </div>
+            <section class="team-achievements" aria-labelledby="achievements-title"><h2 id="achievements-title">Достижения команды</h2><label for="achievement-team">Выберите команду</label><select id="achievement-team" class="field-control"></select><div id="achievement-cards" class="achievement-grid"></div></section>
+          </div>
+          <p class="field-hint">За каждый подтверждённый бизнесом этап — 10 баллов. Повторное подтверждение не начисляет баллы заново. Демо без авторизации.</p>
+        </section>
       </main>
     </div>
   </div>
