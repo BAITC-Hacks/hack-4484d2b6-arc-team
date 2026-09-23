@@ -48,7 +48,9 @@ def test_health_profiles_and_openapi(client):
     assert "/api/tasks/{task_id}" in spec["paths"]
     assert "/api/tasks/{task_id}/questions" in spec["paths"]
     assert "/api/tasks/{task_id}/generate-card" in spec["paths"]
-    assert not any("publish" in path for path in spec["paths"])
+    assert "/api/tasks/{task_id}/confirm" in spec["paths"]
+    assert "/api/tasks/{task_id}/publish" in spec["paths"]
+    assert not any("proposals" in path or "catalog" in path for path in spec["paths"])
 
 
 def test_draft_survives_restart_with_original_text(client, db):
@@ -71,7 +73,7 @@ def test_draft_survives_restart_with_original_text(client, db):
 
 
 def test_working_copy_never_overwrites_confirmed_or_published_snapshots(client, db):
-    # Set up stored snapshots directly: confirmation/publication actions are step 3.
+    # Isolate PATCH behavior using previously stored snapshots.
     card = TaskCard(title="Подтверждённая задача").model_dump()
     rating = {"score": 0, "level": "draft", "categories": [], "missing_fields": ["context"]}
     questions = [{"id": "q-data", "field": "data", "text": "Какие данные есть?"}]

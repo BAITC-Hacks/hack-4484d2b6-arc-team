@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, computed_field, model_validator
 
 Text = Annotated[str, StringConstraints(strip_whitespace=True, max_length=20000)]
 RequiredText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=20000)]
@@ -84,15 +84,23 @@ class Question(Model):
         return self
 
 
-class RatingCategory(Model):
-    key: str
+class RatingField(Model):
+    field: str
     label: str
     points: int = Field(ge=0, le=100)
     maximum: int = Field(ge=0, le=100)
 
 
+class RatingCategory(Model):
+    key: str
+    label: str
+    points: int = Field(ge=0, le=100)
+    maximum: int = Field(ge=0, le=100)
+    fields: list[RatingField] = Field(default_factory=list)
+
+
 class Rating(Model):
-    """Future server-generated result; step 1 does not calculate ratings."""
+    """Server-calculated completeness of the explicitly confirmed card."""
 
     score: int = Field(ge=0, le=100)
     level: ReadinessLevel
@@ -135,6 +143,20 @@ class GenerateCardRequest(AIRequest):
     answers: dict[str, Text] | None = Field(default=None, max_length=20)
 
 
+class TaskVersionRequest(Model):
+    expected_updated_at: AwareDatetime
+
+
+class ConfirmRequest(TaskVersionRequest):
+    proposed_card: TaskCard | None = None
+
+    @model_validator(mode="after")
+    def no_null_card(self):
+        if "proposed_card" in self.model_fields_set and self.proposed_card is None:
+            raise ValueError("Omit proposed_card to confirm the saved card; null is not a card")
+        return self
+
+
 class Task(Model):
     id: str
     business_id: str
@@ -155,6 +177,22 @@ class Task(Model):
     updated_at: datetime
     questions_ai: AIMetadata | None = None
     card_ai: AIMetadata | None = None
+    confirmed_topic: str | None = None
+    published_topic: str | None = None
+
+    @computed_field
+    @property
+    def has_unconfirmed_changes(self) -> bool:
+        return self.confirmed_card is None or self.proposed_card != self.confirmed_card or self.topic != self.confirmed_topic
+
+    @computed_field
+    @property
+    def has_unpublished_changes(self) -> bool:
+        return self.confirmed_card is not None and (
+            self.published_card != self.confirmed_card
+            or self.published_rating != self.confirmed_rating
+            or self.published_topic != self.confirmed_topic
+        )
 
 
 class AIResult(Model):

@@ -26,7 +26,7 @@ class Database:
         with self.connect() as connection:
             connection.execute("PRAGMA journal_mode = WAL")
             version = connection.execute("PRAGMA user_version").fetchone()[0]
-            if version > 2:
+            if version > 3:
                 raise RuntimeError("Database schema is newer than this application")
             if version == 0:
                 schema = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
@@ -40,6 +40,17 @@ class Database:
                     ALTER TABLE tasks ADD COLUMN card_ai TEXT
                         CHECK (card_ai IS NULL OR json_valid(card_ai));
                     PRAGMA user_version = 2;
+                    COMMIT;
+                """)
+                version = 2
+            if version == 2:
+                connection.executescript("""
+                    BEGIN IMMEDIATE;
+                    ALTER TABLE tasks ADD COLUMN confirmed_topic TEXT;
+                    ALTER TABLE tasks ADD COLUMN published_topic TEXT;
+                    UPDATE tasks SET confirmed_topic = topic WHERE confirmed_card IS NOT NULL;
+                    UPDATE tasks SET published_topic = topic WHERE published_card IS NOT NULL;
+                    PRAGMA user_version = 3;
                     COMMIT;
                 """)
 

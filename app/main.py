@@ -12,8 +12,8 @@ from starlette.exceptions import HTTPException
 from app.ai import AIError, AIService
 from app.config import ai_settings, cors_origins, database_path
 from app.db import Database
-from app.models import AIRequest, AIResult, DemoProfiles, DraftCreate, DraftUpdate, GenerateCardRequest, Task
-from app.repository import Repository, StaleTaskError
+from app.models import AIRequest, AIResult, ConfirmRequest, DemoProfiles, DraftCreate, DraftUpdate, GenerateCardRequest, Task, TaskVersionRequest
+from app.repository import Repository, StaleTaskError, TaskStateError
 
 
 def create_app(db_path: Path | None = None, ai_service: AIService | None = None) -> FastAPI:
@@ -26,8 +26,8 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
         db.initialize()
         yield
 
-    app = FastAPI(title="AI Sana Challenge Hub", version="0.2.0", lifespan=lifespan,
-                  description="Step 2: persistent drafts and AI constructor. Demo profile headers are not authentication.")
+    app = FastAPI(title="AI Sana Challenge Hub", version="0.3.0", lifespan=lifespan,
+                  description="Step 3: AI constructor, confirmed ratings and publication. Demo profile headers are not authentication.")
     app.state.db = db
     assets = Path(__file__).resolve().parent
     app.mount("/static", StaticFiles(directory=assets / "static"), name="static")
@@ -60,7 +60,14 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
     @app.exception_handler(StaleTaskError)
     async def stale_task(request: Request, exc: StaleTaskError):
         return JSONResponse(status_code=409, content={"error": {
-            "code": "task_changed", "message": "Задача изменилась во время запроса. Загрузите актуальные данные и повторите операцию.", "details": [],
+            "code": "task_changed", "message": "Задача изменилась после загрузки. Загрузите актуальные данные и повторите операцию.", "details": [],
+        }})
+
+    @app.exception_handler(TaskStateError)
+    async def task_state_error(request: Request, exc: TaskStateError):
+        return JSONResponse(status_code=exc.status_code, content={"error": {
+            "code": "validation_error" if exc.status_code == 422 else "confirmation_required",
+            "message": exc.message, "details": [],
         }})
 
     def business_profile(x_demo_business_id: Annotated[str | None, Header()] = None) -> str:
@@ -72,7 +79,7 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
 
     @app.get("/", include_in_schema=False)
     def index():
-        return {"service": "AI Sana Challenge Hub", "stage": "ai_constructor", "docs": "/docs"}
+        return {"service": "AI Sana Challenge Hub", "stage": "rating_publication", "docs": "/docs"}
 
     @app.get("/api/ai/status", tags=["ai"])
     def ai_status():
@@ -135,6 +142,20 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
             task = repository.save_answers(task, payload.answers)
         card, meta = ai.card(task, payload.mode if payload else None)
         return AIResult(task=repository.save_generated_card(task, card, meta), ai=meta)
+
+    @app.post("/api/tasks/{task_id}/confirm", response_model=Task, tags=["publication"])
+    def confirm_task(task_id: str, payload: ConfirmRequest, business_id: str = Depends(business_profile)):
+        task = repository.confirm_task(task_id, business_id, payload.expected_updated_at, payload.proposed_card)
+        if task is None:
+            raise HTTPException(404, "Задача не найдена")
+        return task
+
+    @app.post("/api/tasks/{task_id}/publish", response_model=Task, tags=["publication"])
+    def publish_task(task_id: str, payload: TaskVersionRequest, business_id: str = Depends(business_profile)):
+        task = repository.publish_task(task_id, business_id, payload.expected_updated_at)
+        if task is None:
+            raise HTTPException(404, "Задача не найдена")
+        return task
 
     return app
 

@@ -4,12 +4,20 @@ from uuid import uuid4
 
 from app.db import Database
 from app.models import AIMetadata, DemoProfiles, DraftCreate, DraftUpdate, Question, Task, TaskCard
+from app.scoring import calculate_rating, is_filled
 
 JSON_FIELDS = {"questions", "answers", "proposed_card", "confirmed_card", "confirmed_rating", "published_card", "published_rating", "questions_ai", "card_ai"}
 
 
 class StaleTaskError(Exception):
-    """The user edited the task while an AI request was running."""
+    """The task changed after the version reviewed by the caller."""
+
+
+class TaskStateError(Exception):
+    def __init__(self, message: str, status_code: int = 409):
+        super().__init__(message)
+        self.message = message
+        self.status_code = status_code
 
 
 def utc_now() -> str:
@@ -110,3 +118,52 @@ class Repository:
         return self._save_ai_fields(snapshot, {
             "proposed_card": card.model_dump(), "card_ai": meta.model_dump(mode="json"),
         })
+
+    def confirm_task(self, task_id: str, business_id: str, expected_updated_at: datetime,
+                     proposed_card: TaskCard | None = None) -> Task | None:
+        with self.db.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute("SELECT * FROM tasks WHERE id=? AND business_id=?", (task_id, business_id)).fetchone()
+            if row is None:
+                return None
+            task = decode_task(row)
+            if task.updated_at != expected_updated_at:
+                raise StaleTaskError()
+            card = proposed_card if proposed_card is not None else task.proposed_card
+            if not is_filled(card.title):
+                raise TaskStateError("Укажите название задачи перед подтверждением", 422)
+            rating = calculate_rating(card)
+            if task.confirmed_card == card and task.confirmed_rating == rating and task.confirmed_topic == task.topic and task.proposed_card == card:
+                return task
+            now = utc_now()
+            # Rating is derived here, not accepted from the client or AI.
+            connection.execute(
+                "UPDATE tasks SET proposed_card=?, confirmed_card=?, confirmed_rating=?, confirmed_topic=?, confirmed_at=?, updated_at=?, card_ai=? WHERE id=?",
+                (encode(card.model_dump()), encode(card.model_dump()), encode(rating.model_dump()), task.topic, now, now,
+                 row["card_ai"] if task.proposed_card == card else None, task_id),
+            )
+            return decode_task(connection.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone())
+
+    def publish_task(self, task_id: str, business_id: str, expected_updated_at: datetime) -> Task | None:
+        with self.db.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute("SELECT * FROM tasks WHERE id=? AND business_id=?", (task_id, business_id)).fetchone()
+            if row is None:
+                return None
+            task = decode_task(row)
+            if task.updated_at != expected_updated_at:
+                raise StaleTaskError()
+            if task.confirmed_card is None or task.confirmed_rating is None:
+                raise TaskStateError("Сначала подтвердите карточку задачи")
+            if task.has_unconfirmed_changes:
+                raise TaskStateError("Подтвердите изменения карточки и темы перед публикацией")
+            if task.status == "published" and not task.has_unpublished_changes:
+                return task
+            now = utc_now()
+            # No minimum score: a confirmed title-only card can publish at 0/100.
+            connection.execute(
+                "UPDATE tasks SET status='published', published_card=?, published_rating=?, published_topic=?, published_at=?, updated_at=? WHERE id=?",
+                (row["confirmed_card"], row["confirmed_rating"], task.confirmed_topic,
+                 row["published_at"] or now, now, task_id),
+            )
+            return decode_task(connection.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone())
