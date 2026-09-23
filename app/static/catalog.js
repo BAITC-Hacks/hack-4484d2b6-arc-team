@@ -12,21 +12,31 @@
   const count = document.querySelector("#catalog-count");
   const empty = document.querySelector("#catalog-empty");
   const error = document.querySelector("#catalog-error");
-  const preview = document.querySelector("#catalog-preview");
   let tasks = [];
+  const stateKey = "ai-sana:catalog-filters";
+  let saved = {};
+  try { saved = JSON.parse(sessionStorage.getItem(stateKey)) || {}; } catch { /* Optional tab state. */ }
+  if (!saved || typeof saved !== "object") saved = {};
+  query.value = typeof saved.query === "string" ? saved.query.slice(0, 200) : "";
+  readiness.value = Object.hasOwn(levels, saved.readiness) ? saved.readiness : "";
+  let returnScroll = Number.isFinite(saved.scroll) ? Math.max(0, saved.scroll) : 0;
+
+  function saveState() {
+    try { sessionStorage.setItem(stateKey, JSON.stringify({ query: query.value, topic: topic.value,
+      readiness: readiness.value, scroll: returnScroll })); } catch { /* Works without storage. */ }
+  }
+
+  function restorePosition() {
+    if (window.location.hash === "#catalog") requestAnimationFrame(() => {
+      if (window.location.hash === "#catalog") window.scrollTo(0, returnScroll);
+    });
+  }
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
-  }
-
-  function showPreview(task) {
-    document.querySelector("#catalog-preview-title").textContent = task.published_card.title;
-    document.querySelector("#catalog-preview-description").textContent = task.published_card.need;
-    document.querySelector("#catalog-preview-result").textContent = task.published_card.expected_result;
-    preview.showModal();
   }
 
   function card(task) {
@@ -56,10 +66,10 @@
       meter.setAttribute("aria-label", `Готовность: ${rating.score} из 100`);
       body.append(meter);
     }
-    const open = element("button", "button button-outline", "Посмотреть задачу →");
-    open.type = "button";
+    const open = element("a", "button button-outline", "Посмотреть задачу →");
+    open.href = `#task/${encodeURIComponent(task.id)}`;
     open.setAttribute("aria-label", `Посмотреть задачу: ${data.title}`);
-    open.addEventListener("click", () => showPreview(task));
+    open.addEventListener("click", () => { returnScroll = window.scrollY; saveState(); });
     body.append(open);
     article.append(top, body);
     return article;
@@ -79,7 +89,7 @@
     empty.hidden = visible.length !== 0;
   }
 
-  function reset() { form.reset(); render(); }
+  function reset() { form.reset(); returnScroll = 0; saveState(); render(); }
 
   async function load() {
     grid.setAttribute("aria-busy", "true");
@@ -98,11 +108,12 @@
           && task.published_rating.score >= 0 && task.published_rating.score <= 100
           && Object.hasOwn(levels, task.published_rating.level))))) throw new Error("Invalid catalog data");
       tasks = data;
-      const selected = topic.value;
+      const selected = topic.value || (typeof saved.topic === "string" ? saved.topic : "");
       topic.replaceChildren(new Option("Все темы", ""), ...[...new Set(tasks.map(task => task.topic))]
         .sort((a, b) => a.localeCompare(b, "ru")).map(value => new Option(value, value)));
       topic.value = [...topic.options].some(option => option.value === selected) ? selected : "";
       render();
+      restorePosition();
     } catch {
       tasks = [];
       count.textContent = "Каталог недоступен";
@@ -111,10 +122,10 @@
   }
 
   form.addEventListener("submit", event => event.preventDefault());
-  form.addEventListener("input", () => { if (error.hidden) render(); });
+  form.addEventListener("input", () => { if (error.hidden) { returnScroll = 0; saveState(); render(); } });
   document.querySelector("#catalog-reset").addEventListener("click", () => { if (error.hidden) reset(); });
   document.querySelector("#catalog-empty-reset").addEventListener("click", reset);
   document.querySelector("#catalog-retry").addEventListener("click", load);
-  document.querySelector("#catalog-preview-close").addEventListener("click", () => preview.close());
+  window.addEventListener("hashchange", restorePosition);
   load();
 })();
