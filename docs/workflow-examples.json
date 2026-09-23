@@ -1,0 +1,299 @@
+{
+  "contract_version": "0.4.0",
+  "note": "Синтетический API-прогон: предварительно создана, подтверждена и опубликована задача с одним названием (0 баллов). В своих запросах подставляйте ID из ответов сервера.",
+  "steps": [
+    {
+      "method": "GET",
+      "path": "/api/catalog?topic=retail&readiness=draft",
+      "headers": {},
+      "request": null,
+      "http_status": 200,
+      "response": [
+        {
+          "id": "d36461de-054e-45a6-b36f-16945b7e8d67",
+          "topic": "retail",
+          "status": "published",
+          "published_at": "2026-09-23T11:45:01.274618Z",
+          "published_card": {
+            "title": "Учёт товаров",
+            "context": "",
+            "need": "",
+            "users": "",
+            "data": "",
+            "constraints": "",
+            "expected_result": "",
+            "success_criteria": "",
+            "contact": "",
+            "interaction_format": "",
+            "ai_recommendations": []
+          },
+          "published_rating": {
+            "score": 0,
+            "level": "draft",
+            "categories": [
+              {
+                "key": "context_need",
+                "label": "Контекст и потребность",
+                "points": 0,
+                "maximum": 20,
+                "fields": [
+                  {
+                    "field": "context",
+                    "label": "Текущий процесс",
+                    "points": 0,
+                    "maximum": 10
+                  },
+                  {
+                    "field": "need",
+                    "label": "Необходимое изменение",
+                    "points": 0,
+                    "maximum": 10
+                  }
+                ]
+              },
+              {
+                "key": "data",
+                "label": "Данные и материалы",
+                "points": 0,
+                "maximum": 20,
+                "fields": [
+                  {
+                    "field": "data",
+                    "label": "Доступные данные, материалы или источники",
+                    "points": 0,
+                    "maximum": 20
+                  }
+                ]
+              },
+              {
+                "key": "expected_result",
+                "label": "Ожидаемый результат",
+                "points": 0,
+                "maximum": 15,
+                "fields": [
+                  {
+                    "field": "expected_result",
+                    "label": "Результат работы команды",
+                    "points": 0,
+                    "maximum": 15
+                  }
+                ]
+              },
+              {
+                "key": "success_criteria",
+                "label": "Критерии успеха",
+                "points": 0,
+                "maximum": 15,
+                "fields": [
+                  {
+                    "field": "success_criteria",
+                    "label": "Критерии и способ проверки",
+                    "points": 0,
+                    "maximum": 15
+                  }
+                ]
+              },
+              {
+                "key": "constraints",
+                "label": "Ограничения",
+                "points": 0,
+                "maximum": 10,
+                "fields": [
+                  {
+                    "field": "constraints",
+                    "label": "Сроки, технологии или доступы",
+                    "points": 0,
+                    "maximum": 10
+                  }
+                ]
+              },
+              {
+                "key": "users",
+                "label": "Пользователи",
+                "points": 0,
+                "maximum": 10,
+                "fields": [
+                  {
+                    "field": "users",
+                    "label": "Целевые пользователи",
+                    "points": 0,
+                    "maximum": 10
+                  }
+                ]
+              },
+              {
+                "key": "business_contact",
+                "label": "Связь с бизнесом",
+                "points": 0,
+                "maximum": 10,
+                "fields": [
+                  {
+                    "field": "contact",
+                    "label": "Контакт",
+                    "points": 0,
+                    "maximum": 4
+                  },
+                  {
+                    "field": "interaction_format",
+                    "label": "Консультации и обратная связь",
+                    "points": 0,
+                    "maximum": 6
+                  }
+                ]
+              }
+            ],
+            "missing_fields": [
+              "context",
+              "need",
+              "data",
+              "expected_result",
+              "success_criteria",
+              "constraints",
+              "users",
+              "contact",
+              "interaction_format"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/d36461de-054e-45a6-b36f-16945b7e8d67/proposals",
+      "headers": {
+        "X-Demo-Team-Id": "team-1"
+      },
+      "request": {
+        "idea": "Прототип учёта товаров",
+        "plan": "Загрузить CSV, показать дефицит",
+        "timeline": "Две недели",
+        "prototype_url": null,
+        "questions": ""
+      },
+      "http_status": 200,
+      "response": {
+        "id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+        "task_id": "d36461de-054e-45a6-b36f-16945b7e8d67",
+        "team_id": "team-1",
+        "idea": "Прототип учёта товаров",
+        "plan": "Загрузить CSV, показать дефицит",
+        "timeline": "Две недели",
+        "prototype_url": null,
+        "questions": "",
+        "status": "submitted",
+        "created_at": "2026-09-23T11:45:01.300534Z",
+        "decided_at": null,
+        "team_name": "ByteTeam",
+        "task_title": "Учёт товаров",
+        "milestones": []
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/proposals/2c8761c7-4620-4e51-9886-c438974fe7f3",
+      "headers": {
+        "X-Demo-Business-Id": "business-1"
+      },
+      "request": {
+        "status": "selected"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+        "task_id": "d36461de-054e-45a6-b36f-16945b7e8d67",
+        "team_id": "team-1",
+        "idea": "Прототип учёта товаров",
+        "plan": "Загрузить CSV, показать дефицит",
+        "timeline": "Две недели",
+        "prototype_url": null,
+        "questions": "",
+        "status": "selected",
+        "created_at": "2026-09-23T11:45:01.300534Z",
+        "decided_at": "2026-09-23T11:45:01.322360Z",
+        "team_name": "ByteTeam",
+        "task_title": "Учёт товаров",
+        "milestones": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/proposals/2c8761c7-4620-4e51-9886-c438974fe7f3/milestones",
+      "headers": {
+        "X-Demo-Team-Id": "team-1"
+      },
+      "request": {
+        "description": "Прототип проверен на тестовом CSV",
+        "result_url": "https://example.test/demo"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "36ebaf10-3578-4c60-a4e8-2a1063521168",
+        "proposal_id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+        "description": "Прототип проверен на тестовом CSV",
+        "result_url": "https://example.test/demo",
+        "status": "submitted",
+        "points_awarded": 0,
+        "created_at": "2026-09-23T11:45:01.343684Z",
+        "confirmed_at": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/milestones/36ebaf10-3578-4c60-a4e8-2a1063521168/confirm",
+      "headers": {
+        "X-Demo-Business-Id": "business-1"
+      },
+      "request": null,
+      "http_status": 200,
+      "response": {
+        "id": "36ebaf10-3578-4c60-a4e8-2a1063521168",
+        "proposal_id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+        "description": "Прототип проверен на тестовом CSV",
+        "result_url": "https://example.test/demo",
+        "status": "confirmed",
+        "points_awarded": 10,
+        "created_at": "2026-09-23T11:45:01.343684Z",
+        "confirmed_at": "2026-09-23T11:45:01.372096Z"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/my/proposals",
+      "headers": {
+        "X-Demo-Team-Id": "team-1"
+      },
+      "request": null,
+      "http_status": 200,
+      "response": [
+        {
+          "id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+          "task_id": "d36461de-054e-45a6-b36f-16945b7e8d67",
+          "team_id": "team-1",
+          "idea": "Прототип учёта товаров",
+          "plan": "Загрузить CSV, показать дефицит",
+          "timeline": "Две недели",
+          "prototype_url": null,
+          "questions": "",
+          "status": "selected",
+          "created_at": "2026-09-23T11:45:01.300534Z",
+          "decided_at": "2026-09-23T11:45:01.322360Z",
+          "team_name": "ByteTeam",
+          "task_title": "Учёт товаров",
+          "milestones": [
+            {
+              "id": "36ebaf10-3578-4c60-a4e8-2a1063521168",
+              "proposal_id": "2c8761c7-4620-4e51-9886-c438974fe7f3",
+              "description": "Прототип проверен на тестовом CSV",
+              "result_url": "https://example.test/demo",
+              "status": "confirmed",
+              "points_awarded": 10,
+              "created_at": "2026-09-23T11:45:01.343684Z",
+              "confirmed_at": "2026-09-23T11:45:01.372096Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "team_points_after_repeated_confirmation": 10
+}

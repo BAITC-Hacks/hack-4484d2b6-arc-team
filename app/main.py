@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, Request
+from fastapi import Depends, FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -13,6 +13,7 @@ from app.ai import AIError, AIService
 from app.config import ai_settings, cors_origins, database_path
 from app.db import Database
 from app.models import AIRequest, AIResult, ConfirmRequest, DemoProfiles, DraftCreate, DraftUpdate, GenerateCardRequest, Task, TaskVersionRequest
+from app.models import Milestone, MilestoneCreate, ProposalCreate, ProposalDecision, ProposalView, PublishedTask, ReadinessLevel
 from app.repository import Repository, StaleTaskError, TaskStateError
 
 
@@ -26,8 +27,8 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
         db.initialize()
         yield
 
-    app = FastAPI(title="AI Sana Challenge Hub", version="0.3.0", lifespan=lifespan,
-                  description="Step 3: AI constructor, confirmed ratings and publication. Demo profile headers are not authentication.")
+    app = FastAPI(title="AI Sana Challenge Hub", version="0.4.0", lifespan=lifespan,
+                  description="Step 4: public catalog, proposals, manual decisions and milestone points. Demo profile headers are not authentication.")
     app.state.db = db
     assets = Path(__file__).resolve().parent
     app.mount("/static", StaticFiles(directory=assets / "static"), name="static")
@@ -39,7 +40,7 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
     origins = cors_origins()
     if origins:
         app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST", "PATCH"],
-                           allow_headers=["Content-Type", "X-Demo-Business-Id"])
+                           allow_headers=["Content-Type", "X-Demo-Business-Id", "X-Demo-Team-Id"])
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
@@ -66,7 +67,7 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
     @app.exception_handler(TaskStateError)
     async def task_state_error(request: Request, exc: TaskStateError):
         return JSONResponse(status_code=exc.status_code, content={"error": {
-            "code": "validation_error" if exc.status_code == 422 else "confirmation_required",
+            "code": exc.code,
             "message": exc.message, "details": [],
         }})
 
@@ -77,9 +78,16 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
             raise HTTPException(404, "Демонстрационный бизнес-профиль не найден")
         return x_demo_business_id
 
+    def team_profile(x_demo_team_id: Annotated[str | None, Header()] = None) -> str:
+        if not x_demo_team_id:
+            raise HTTPException(400, "Укажите X-Demo-Team-Id из /api/demo/profiles")
+        if not repository.team_exists(x_demo_team_id):
+            raise HTTPException(404, "Демонстрационная команда не найдена")
+        return x_demo_team_id
+
     @app.get("/", include_in_schema=False)
     def index():
-        return {"service": "AI Sana Challenge Hub", "stage": "rating_publication", "docs": "/docs"}
+        return {"service": "AI Sana Challenge Hub", "stage": "team_workflow", "docs": "/docs"}
 
     @app.get("/api/ai/status", tags=["ai"])
     def ai_status():
@@ -156,6 +164,44 @@ def create_app(db_path: Path | None = None, ai_service: AIService | None = None)
         if task is None:
             raise HTTPException(404, "Задача не найдена")
         return task
+
+    @app.get("/api/catalog", response_model=list[PublishedTask], tags=["catalog"])
+    def catalog(topic: Annotated[str | None, Query(max_length=100)] = None, readiness: ReadinessLevel | None = None):
+        return repository.catalog(topic, readiness)
+
+    @app.get("/api/catalog/{task_id}", response_model=PublishedTask, tags=["catalog"])
+    def public_task(task_id: str):
+        task = repository.public_task(task_id)
+        if task is None:
+            raise HTTPException(404, "Опубликованная задача не найдена")
+        return task
+
+    @app.post("/api/tasks/{task_id}/proposals", response_model=ProposalView, tags=["proposals"])
+    def submit_proposal(task_id: str, payload: ProposalCreate, team_id: str = Depends(team_profile)):
+        return repository.create_proposal(task_id, team_id, payload)
+
+    @app.get("/api/tasks/{task_id}/proposals", response_model=list[ProposalView], tags=["proposals"])
+    def task_proposals(task_id: str, business_id: str = Depends(business_profile)):
+        proposals = repository.task_proposals(task_id, business_id)
+        if proposals is None:
+            raise HTTPException(404, "Задача не найдена")
+        return proposals
+
+    @app.get("/api/my/proposals", response_model=list[ProposalView], tags=["proposals"])
+    def my_proposals(team_id: str = Depends(team_profile)):
+        return repository.team_proposals(team_id)
+
+    @app.patch("/api/proposals/{proposal_id}", response_model=ProposalView, tags=["proposals"])
+    def decide_proposal(proposal_id: str, payload: ProposalDecision, business_id: str = Depends(business_profile)):
+        return repository.decide_proposal(proposal_id, business_id, payload.status)
+
+    @app.post("/api/proposals/{proposal_id}/milestones", response_model=Milestone, tags=["milestones"])
+    def submit_milestone(proposal_id: str, payload: MilestoneCreate, team_id: str = Depends(team_profile)):
+        return repository.submit_milestone(proposal_id, team_id, payload)
+
+    @app.post("/api/milestones/{milestone_id}/confirm", response_model=Milestone, tags=["milestones"])
+    def confirm_milestone(milestone_id: str, business_id: str = Depends(business_profile)):
+        return repository.confirm_milestone(milestone_id, business_id)
 
     return app
 
