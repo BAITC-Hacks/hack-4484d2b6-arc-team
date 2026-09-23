@@ -1,4 +1,4 @@
-/* Participant 3, step 3. Local drafts only; never POST a demo proposal. */
+/* Team proposal form: isolated local drafts, explicit server submission. */
 (() => {
   "use strict";
   const fields = [
@@ -20,6 +20,10 @@
   let storageBlocked = false;
   let controller = null;
   let checked = false;
+  let lookupGeneration = 0;
+  let sending = false;
+  let ready = false;
+  const api = window.SanaTeam;
   const get = id => host?.querySelector(`#proposal-${id}`);
   const draftKey = () => `ai-sana:proposal-draft:v1:${JSON.stringify([task.source, task.id, teamId])}`;
 
@@ -121,7 +125,7 @@
       get("review").textContent = "Проверьте отмеченные поля. Ваш черновик остаётся сохранённым.";
       get(failed[0]).focus();
     } else {
-      get("review").textContent = "Основные поля заполнены, формат ссылки подходит. Это пока локальный черновик — бизнесу он не отправлен.";
+      get("review").textContent = "Основные поля заполнены, формат ссылки подходит. Нажмите «Отправить отклик», когда будете готовы.";
     }
   }
   function showRole() {
@@ -129,6 +133,82 @@
     const isTeam = document.documentElement.dataset.demoRole === "team";
     get("role-notice").hidden = isTeam;
     get("workspace").hidden = !isTeam;
+    if (teamId && !sending) checkExisting();
+  }
+  function showExisting(proposal) {
+    get("form").hidden = get("footer").hidden = get("save-status").hidden = true;
+    get("review").hidden = true;
+    const box = get("existing");
+    const link = text("a", "Посмотреть в моих откликах →", "button button-outline");
+    link.href = `#proposals/${encodeURIComponent(proposal.id)}`;
+    box.replaceChildren(text("h3", api.statuses[proposal.status]),
+      text("p", "Ваш отклик сохранён на сервере. Бизнес принимает решение о сотрудничестве. Повторно отправлять его не нужно."), link);
+    box.hidden = false;
+    get("badge").textContent = "Отклик отправлен";
+  }
+  async function checkExisting() {
+    const current = ++lookupGeneration;
+    const owner = host;
+    const selectedTeam = teamId;
+    const selectedTask = task?.id;
+    ready = false;
+    get("send").disabled = true;
+    get("existing").hidden = true;
+    get("form").hidden = get("footer").hidden = get("save-status").hidden = false;
+    get("badge").textContent = "Черновик отклика";
+    if (!api.isTeam() || !selectedTeam) return;
+    get("send-note").textContent = "Проверяем, отправляла ли команда отклик…";
+    try {
+      const own = api.proposals(await api.request("/api/my/proposals", { teamId: selectedTeam }));
+      if (host !== owner || current !== lookupGeneration || teamId !== selectedTeam) return;
+      if (own.some(p => p.team_id !== selectedTeam)) throw new Error("Ответ сервера не соответствует выбранной команде.");
+      const existing = own.find(p => p.task_id === selectedTask);
+      if (existing) showExisting(existing);
+      else {
+        ready = true;
+        get("send").disabled = false;
+        get("send-note").textContent = "Один отклик от команды на задачу. После отправки изменить его нельзя. Решение принимает бизнес.";
+      }
+    } catch (error) {
+      if (host !== owner || current !== lookupGeneration) return;
+      get("load-message").textContent = `${error.message} Черновик доступен, но отправка заблокирована до проверки откликов.`;
+      get("load-error").hidden = false;
+      get("send-note").textContent = "Нажмите «Повторить», чтобы проверить соединение. Введённый текст сохранён.";
+    }
+  }
+  async function send() {
+    if (!ready || sending || !api.isTeam() || task.source !== "public") return;
+    review();
+    if (Object.keys(validate()).length) return;
+    const owner = host;
+    const selectedTeam = teamId;
+    const selectedTask = task.id;
+    const current = generation;
+    const body = Object.fromEntries(fields.map(([key]) => [key, values[key].trim()]));
+    body.prototype_url ||= null;
+    sending = true;
+    get("fields").disabled = get("team").disabled = get("send").disabled = true;
+    get("send").textContent = "Отправляем…";
+    get("review").textContent = "Сохраняем отклик на сервере…";
+    try {
+      const result = await api.mutate(`/api/tasks/${encodeURIComponent(selectedTask)}/proposals`, selectedTeam, body);
+      api.proposals([result]);
+      if (result.task_id !== selectedTask || result.team_id !== selectedTeam) throw new Error("Ответ сервера не соответствует вашему отклику.");
+      if (owner !== host || generation !== current) return;
+      showExisting(result);
+    } catch (error) {
+      if (owner !== host || generation !== current) return;
+      get("review").classList.add("proposal-review-error");
+      get("review").textContent = `${error.message} Ваш черновик сохранён. Если ответ потерялся, повторная отправка того же отклика не создаст дубликат.`;
+      if (error.status === 409) await checkExisting();
+    } finally {
+      if (owner === host && generation === current) {
+        sending = false;
+        get("fields").disabled = get("team").disabled = false;
+        get("send").disabled = !ready;
+        get("send").textContent = "Отправить отклик";
+      }
+    }
   }
   async function loadTeams() {
     const current = ++generation;
@@ -159,13 +239,14 @@
         get("team").replaceChildren(new Option("Команд пока нет", ""));
         return;
       }
-      const preferred = read(teamPreference);
+      const preferred = api.read(teamPreference);
       teamId = teams.some(item => item.id === preferred) ? preferred : teams[0].id;
       get("team").replaceChildren(...teams.map(item => new Option(item.name, item.id)));
       get("team").value = teamId;
       get("team").disabled = false;
       get("fields").disabled = false;
       restore();
+      checkExisting();
     } catch {
       if (current !== generation || host !== owner) return;
       get("load-message").textContent = "Не удалось загрузить команды. Проверьте соединение и повторите попытку.";
@@ -175,6 +256,8 @@
   }
   function unmount() {
     ++generation;
+    ++lookupGeneration;
+    sending = ready = false;
     controller?.abort();
     host?.replaceChildren();
     host = task = null;
@@ -188,19 +271,20 @@
     // Static markup only; user text is always assigned via textContent/value.
     host.innerHTML = `
       <section class="panel proposal-panel" aria-labelledby="proposal-title">
-        <header class="proposal-heading"><div><p class="eyebrow">ОТ ИДЕИ К СОТРУДНИЧЕСТВУ</p><h2 id="proposal-title" tabindex="-1">Предложите свой подход</h2><p>Не нужно готовое решение. Начните с идеи и понятного плана.</p></div><span class="badge badge-mint">Черновик отклика</span></header>
+        <header class="proposal-heading"><div><p class="eyebrow">ОТ ИДЕИ К СОТРУДНИЧЕСТВУ</p><h2 id="proposal-title" tabindex="-1">Предложите свой подход</h2><p>Не нужно готовое решение. Начните с идеи и понятного плана.</p></div><span id="proposal-badge" class="badge badge-mint">Черновик отклика</span></header>
         <div id="proposal-role-notice" class="proposal-role-note" hidden><p>Отклик готовится от имени студенческой команды. Черновики бизнеса останутся на месте.</p><button id="proposal-switch-role" class="button button-outline" type="button">Перейти к роли команды</button></div>
         <div id="proposal-workspace">
-          <div class="proposal-demo-note">Это учебная задача. Здесь можно подготовить черновик; отправка бизнесу пока недоступна.</div>
+          <div class="proposal-demo-note">Выберите демонстрационную команду. Сохранённый черновик виден только в этом браузере; отправленный отклик появится у бизнеса.</div>
           <div id="proposal-load-error" class="proposal-load-error" role="alert" hidden><p id="proposal-load-message"></p><button id="proposal-retry" class="button button-outline" type="button">Повторить</button></div>
           <div class="proposal-team-row"><div class="form-field"><label for="proposal-team">Ваша команда</label><select id="proposal-team" class="field-control" disabled><option>Загрузка команд…</option></select></div><p id="proposal-team-info"></p></div>
           <p id="proposal-storage-warning" class="proposal-storage-warning" role="status" hidden>Хранилище браузера недоступно. Черновик останется только в памяти этой вкладки до её закрытия или перезагрузки.</p>
+          <div id="proposal-existing" class="proposal-review" role="status" hidden></div>
           <form id="proposal-form" novalidate><fieldset id="proposal-fields" disabled><legend class="sr-only">Черновик предложения команды</legend><div id="proposal-inputs" class="proposal-inputs"></div>
             <div class="proposal-actions"><button class="button button-primary" type="submit">Сохранить черновик</button><button id="proposal-check" class="button button-outline" type="button">Проверить отклик</button></div>
           </fieldset></form>
           <p id="proposal-save-status" class="proposal-save-status" role="status" aria-live="polite"></p>
           <p id="proposal-review" class="proposal-review" role="status" hidden></p>
-          <footer class="proposal-footer"><span id="proposal-completion"></span><button class="button button-outline" type="button" disabled aria-describedby="proposal-send-note">Отправить отклик</button><p id="proposal-send-note">Отправка появится после подключения сервиса откликов. Сохранение черновика не создаёт отклик.</p></footer>
+          <footer id="proposal-footer" class="proposal-footer"><span id="proposal-completion"></span><button id="proposal-send" class="button button-primary" type="button" disabled aria-describedby="proposal-send-note">Отправить отклик</button><p id="proposal-send-note"></p></footer>
         </div>
       </section>`;
     for (const [key, label, hint, required] of fields) {
@@ -236,10 +320,13 @@
     get("team").addEventListener("change", event => {
       teamId = event.target.value;
       write(teamPreference, teamId);
+      api.write(teamPreference, teamId);
       restore();
+      checkExisting();
     });
     get("form").addEventListener("submit", event => { event.preventDefault(); remember(); });
     get("check").addEventListener("click", review);
+    get("send").addEventListener("click", send);
     get("retry").addEventListener("click", loadTeams);
     get("switch-role").addEventListener("click", () => {
       const role = document.querySelector("#demo-profile");
