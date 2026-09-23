@@ -275,4 +275,4 @@ def test_version_one_database_migrates_without_losing_tasks(tmp_path):
     assert saved.draft_text == "Edited"
     assert saved.card_ai is None
     with db.connect() as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 3

@@ -1,6 +1,6 @@
 {
-  "contract_version": "0.2.0",
-  "note": "Синтетические примеры хранения. Примеры AI-конструктора: ai-examples.json. Рейтинг и публикация пока не реализованы.",
+  "contract_version": "0.3.0",
+  "note": "Синтетические примеры хранения. AI-конструктор: ai-examples.json; рейтинг и публикация: scoring-examples.json.",
   "headers": {
     "X-Demo-Business-Id": "business-1"
   },
@@ -135,7 +135,11 @@
     "created_at": "2026-09-23T09:15:00Z",
     "updated_at": "2026-09-23T09:15:00Z",
     "questions_ai": null,
-    "card_ai": null
+    "card_ai": null,
+    "confirmed_topic": null,
+    "published_topic": null,
+    "has_unconfirmed_changes": true,
+    "has_unpublished_changes": false
   },
   "save_draft_request": {
     "draft_text": "Нужно улучшить учёт остатков магазина.",

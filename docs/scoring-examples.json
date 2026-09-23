@@ -1,0 +1,1155 @@
+{
+  "contract_version": "0.3.0",
+  "note": "Синтетические ответы API: публикация при 0, улучшение до 40 и повторная публикация. Для своих запросов берите актуальный updated_at.",
+  "headers": {
+    "X-Demo-Business-Id": "business-1"
+  },
+  "steps": [
+    {
+      "method": "POST",
+      "path": "/api/tasks/draft-1/confirm",
+      "request": {
+        "expected_updated_at": "2026-09-23T11:01:38.080806Z",
+        "proposed_card": {
+          "title": "Учёт остатков"
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [],
+        "answers": {},
+        "proposed_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_rating": {
+          "score": 0,
+          "level": "draft",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 0,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 0,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "context",
+            "need",
+            "data",
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "published_card": null,
+        "published_rating": null,
+        "status": "draft",
+        "confirmed_at": "2026-09-23T11:01:38.211605Z",
+        "published_at": null,
+        "created_at": "2026-09-23T11:01:38.080806Z",
+        "updated_at": "2026-09-23T11:01:38.211605Z",
+        "questions_ai": null,
+        "card_ai": null,
+        "confirmed_topic": "retail",
+        "published_topic": null,
+        "has_unconfirmed_changes": false,
+        "has_unpublished_changes": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/draft-1/publish",
+      "request": {
+        "expected_updated_at": "2026-09-23T11:01:38.211605Z"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [],
+        "answers": {},
+        "proposed_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_rating": {
+          "score": 0,
+          "level": "draft",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 0,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 0,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "context",
+            "need",
+            "data",
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "published_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "published_rating": {
+          "score": 0,
+          "level": "draft",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 0,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 0,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "context",
+            "need",
+            "data",
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "status": "published",
+        "confirmed_at": "2026-09-23T11:01:38.211605Z",
+        "published_at": "2026-09-23T11:01:38.227204Z",
+        "created_at": "2026-09-23T11:01:38.080806Z",
+        "updated_at": "2026-09-23T11:01:38.227204Z",
+        "questions_ai": null,
+        "card_ai": null,
+        "confirmed_topic": "retail",
+        "published_topic": "retail",
+        "has_unconfirmed_changes": false,
+        "has_unpublished_changes": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/draft-1/confirm",
+      "request": {
+        "expected_updated_at": "2026-09-23T11:01:38.227204Z",
+        "proposed_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "data": "Есть тестовый CSV на 500 товаров."
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [],
+        "answers": {},
+        "proposed_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "users": "",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "users": "",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_rating": {
+          "score": 40,
+          "level": "working",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 10,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 10,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 20,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "published_card": {
+          "title": "Учёт остатков",
+          "context": "",
+          "need": "",
+          "users": "",
+          "data": "",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "published_rating": {
+          "score": 0,
+          "level": "draft",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 0,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 0,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 0,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "context",
+            "need",
+            "data",
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "status": "published",
+        "confirmed_at": "2026-09-23T11:01:38.246315Z",
+        "published_at": "2026-09-23T11:01:38.227204Z",
+        "created_at": "2026-09-23T11:01:38.080806Z",
+        "updated_at": "2026-09-23T11:01:38.246315Z",
+        "questions_ai": null,
+        "card_ai": null,
+        "confirmed_topic": "retail",
+        "published_topic": "retail",
+        "has_unconfirmed_changes": false,
+        "has_unpublished_changes": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/draft-1/publish",
+      "request": {
+        "expected_updated_at": "2026-09-23T11:01:38.246315Z"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "draft-1",
+        "business_id": "business-1",
+        "original_text": "У нас постоянно путаются остатки товаров.",
+        "draft_text": "У нас постоянно путаются остатки товаров.",
+        "topic": "retail",
+        "questions": [],
+        "answers": {},
+        "proposed_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "users": "",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "users": "",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "confirmed_rating": {
+          "score": 40,
+          "level": "working",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 10,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 10,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 20,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "published_card": {
+          "title": "Учёт остатков",
+          "context": "Остатки ведутся вручную.",
+          "need": "Автоматизировать поиск дефицита.",
+          "users": "",
+          "data": "Есть тестовый CSV на 500 товаров.",
+          "constraints": "",
+          "expected_result": "",
+          "success_criteria": "",
+          "contact": "",
+          "interaction_format": "",
+          "ai_recommendations": []
+        },
+        "published_rating": {
+          "score": 40,
+          "level": "working",
+          "categories": [
+            {
+              "key": "context_need",
+              "label": "Контекст и потребность",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "context",
+                  "label": "Текущий процесс",
+                  "points": 10,
+                  "maximum": 10
+                },
+                {
+                  "field": "need",
+                  "label": "Необходимое изменение",
+                  "points": 10,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "data",
+              "label": "Данные и материалы",
+              "points": 20,
+              "maximum": 20,
+              "fields": [
+                {
+                  "field": "data",
+                  "label": "Доступные данные, материалы или источники",
+                  "points": 20,
+                  "maximum": 20
+                }
+              ]
+            },
+            {
+              "key": "expected_result",
+              "label": "Ожидаемый результат",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "expected_result",
+                  "label": "Результат работы команды",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "success_criteria",
+              "label": "Критерии успеха",
+              "points": 0,
+              "maximum": 15,
+              "fields": [
+                {
+                  "field": "success_criteria",
+                  "label": "Критерии и способ проверки",
+                  "points": 0,
+                  "maximum": 15
+                }
+              ]
+            },
+            {
+              "key": "constraints",
+              "label": "Ограничения",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "constraints",
+                  "label": "Сроки, технологии или доступы",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "users",
+              "label": "Пользователи",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "users",
+                  "label": "Целевые пользователи",
+                  "points": 0,
+                  "maximum": 10
+                }
+              ]
+            },
+            {
+              "key": "business_contact",
+              "label": "Связь с бизнесом",
+              "points": 0,
+              "maximum": 10,
+              "fields": [
+                {
+                  "field": "contact",
+                  "label": "Контакт",
+                  "points": 0,
+                  "maximum": 4
+                },
+                {
+                  "field": "interaction_format",
+                  "label": "Консультации и обратная связь",
+                  "points": 0,
+                  "maximum": 6
+                }
+              ]
+            }
+          ],
+          "missing_fields": [
+            "expected_result",
+            "success_criteria",
+            "constraints",
+            "users",
+            "contact",
+            "interaction_format"
+          ]
+        },
+        "status": "published",
+        "confirmed_at": "2026-09-23T11:01:38.246315Z",
+        "published_at": "2026-09-23T11:01:38.227204Z",
+        "created_at": "2026-09-23T11:01:38.080806Z",
+        "updated_at": "2026-09-23T11:01:38.265321Z",
+        "questions_ai": null,
+        "card_ai": null,
+        "confirmed_topic": "retail",
+        "published_topic": "retail",
+        "has_unconfirmed_changes": false,
+        "has_unpublished_changes": false
+      }
+    }
+  ]
+}

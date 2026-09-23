@@ -1,5 +1,5 @@
 {
-  "contract_version": "0.2.0",
+  "contract_version": "0.3.0",
   "headers": {
     "X-Demo-Business-Id": "business-1"
   },
@@ -72,7 +72,11 @@
           "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
           "generated_at": "2026-09-23T10:00:00Z"
         },
-        "card_ai": null
+        "card_ai": null,
+        "confirmed_topic": null,
+        "published_topic": null,
+        "has_unconfirmed_changes": true,
+        "has_unpublished_changes": false
       },
       "ai": {
         "mode": "local",
@@ -169,7 +173,11 @@
           "model": null,
           "message": "Локальный режим: шаблонные вопросы и извлечение текста без внешней AI-модели.",
           "generated_at": "2026-09-23T10:00:00Z"
-        }
+        },
+        "confirmed_topic": null,
+        "published_topic": null,
+        "has_unconfirmed_changes": true,
+        "has_unpublished_changes": false
       },
       "ai": {
         "mode": "local",
