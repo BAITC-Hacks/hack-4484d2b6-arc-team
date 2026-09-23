@@ -5,7 +5,8 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Header, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 
 from app.config import cors_origins, database_path
@@ -26,6 +27,13 @@ def create_app(db_path: Path | None = None) -> FastAPI:
     app = FastAPI(title="AI Sana Challenge Hub", version="0.1.0", lifespan=lifespan,
                   description="Step 1: demo profiles and persistent drafts. Demo profile headers are not authentication.")
     app.state.db = db
+    assets = Path(__file__).resolve().parent
+    app.mount("/static", StaticFiles(directory=assets / "static"), name="static")
+
+    @app.get("/ui", include_in_schema=False)
+    def ui():
+        return FileResponse(assets / "templates" / "base.html")
+
     origins = cors_origins()
     if origins:
         app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST", "PATCH"],
