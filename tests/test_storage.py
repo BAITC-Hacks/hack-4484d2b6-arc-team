@@ -50,7 +50,8 @@ def test_health_profiles_and_openapi(client):
     assert "/api/tasks/{task_id}/generate-card" in spec["paths"]
     assert "/api/tasks/{task_id}/confirm" in spec["paths"]
     assert "/api/tasks/{task_id}/publish" in spec["paths"]
-    assert not any("proposals" in path or "catalog" in path for path in spec["paths"])
+    assert "/api/catalog" in spec["paths"]
+    assert "/api/my/proposals" in spec["paths"]
 
 
 def test_draft_survives_restart_with_original_text(client, db):
