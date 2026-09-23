@@ -97,7 +97,7 @@
     $("mission-action").disabled = busy || !ready;
     $("builder-content").setAttribute("aria-busy", String(busy));
     for (const id of ["builder-business", "builder-task", "builder-new", "builder-mode"]) $(id).disabled = busy || !ready;
-    $("demo-profile").disabled = busy;
+    window.SanaRole.setBusy("builder", busy);
     $("builder-retry").disabled = busy;
     $("builder-local").disabled = busy;
     $("builder-reviewed").disabled = busy || !ready || !canReview();
@@ -112,7 +112,7 @@
   }
 
   async function run(label, operation, allowsLocal = false) {
-    if (busy) return;
+    if (busy) return false;
     const initialStage = state.stage;
     busy = true;
     failedOperation = null;
@@ -121,6 +121,7 @@
     lock();
     try {
       await operation();
+      return true;
     } catch (error) {
       if (["task_changed", "confirmation_required"].includes(error.code)) {
         versionConflict = true;
@@ -140,6 +141,7 @@
       $("builder-retry").textContent = ["task_changed", "confirmation_required"].includes(error.code) ? "Обновить сведения" : "Повторить";
       $("builder-error").hidden = false;
       message("Действие не завершено. Можно повторить запрос.");
+      return false;
     } finally {
       busy = false;
       render();
@@ -229,7 +231,7 @@
   async function publishCard() {
     if (!canPublish()) throw new Error("Проверьте и подтвердите текущую карточку перед публикацией.");
     acceptTask(await api(`${taskPath()}/publish`, "POST", { expected_updated_at: state.task.updated_at }));
-    message("Подтверждённая версия опубликована на сервере. Каталог пока показывает демонстрационные примеры.");
+    message("Задача опубликована. Она доступна командам в каталоге и в разделе «Мои задачи».");
   }
 
   async function openTask(taskId) {
@@ -499,6 +501,7 @@
   $("builder-retry").addEventListener("click", () => failedOperation?.());
   $("builder-local").addEventListener("click", () => { sourceMode = "local"; $("builder-mode").value = "local"; failedOperation?.(); });
   $("builder-switch-business").addEventListener("click", () => {
+    if (window.SanaRole.isBusy()) return;
     $("demo-profile").value = "business";
     $("demo-profile").dispatchEvent(new Event("change"));
   });
@@ -522,5 +525,34 @@
   replace.addEventListener("click", () => { dialog.close(); run("Формируем новую рабочую карточку…", generateCard, true); });
   actions.append(cancel, replace); dialog.append(title, description, actions); document.body.append(dialog);
   showRole();
-  run("Подключаем конструктор…", initialize);
+  const initialized = run("Подключаем конструктор…", initialize);
+  // In-page handoff preserves each task's unsaved local copy. No second editor or
+  // independent copy of constructor state is maintained by the owner dashboard.
+  window.SanaBuilder = Object.freeze({
+    initialized,
+    context: () => ({ businessId: profile, taskId: state.task?.id || "", busy, ready }),
+    async setBusiness(businessId) {
+      await initialized;
+      if (busy) return false;
+      if (profile === businessId && ready) return true;
+      persist();
+      return run("Загружаем задачи выбранного бизнеса…", async () => {
+        await loadBusiness(businessId);
+        $("builder-business").value = businessId;
+      });
+    },
+    async open(businessId, taskId = "") {
+      await initialized;
+      if (busy) return false;
+      persist();
+      const opened = await run("Открываем задачу в конструкторе…", async () => {
+        if (profile !== businessId || !ready) await loadBusiness(businessId);
+        $("builder-business").value = businessId;
+        await openTask(taskId);
+        message("Задача открыта. Несохранённые правки восстановлены, если они были.");
+      });
+      if (opened) { window.location.hash = "#builder"; focusStage(); }
+      return opened;
+    },
+  });
 })();
