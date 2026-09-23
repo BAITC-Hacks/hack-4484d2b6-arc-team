@@ -1,0 +1,20 @@
+{
+  "businesses": [
+    {"id":"business-1","name":"Демо · магазин у дома","industry":"retail","contact":"store@example.test"},
+    {"id":"business-2","name":"Демо · городская доставка","industry":"logistics","contact":"delivery@example.test"}
+  ],
+  "teams": [
+    {"id":"team-1","name":"ByteTeam","interests":["retail"],"skills":["аналитика","веб-разработка"],"technologies":["Python","JavaScript"]},
+    {"id":"team-2","name":"DataCrew","interests":["logistics"],"skills":["анализ данных"],"technologies":["Python","pandas"]},
+    {"id":"team-3","name":"EduBuilders","interests":["education"],"skills":["UX","веб-разработка"],"technologies":["HTML","JavaScript"]},
+    {"id":"team-4","name":"GreenCode","interests":["agriculture"],"skills":["машинное обучение"],"technologies":["Python"]},
+    {"id":"team-5","name":"ProcessLab","interests":["services"],"skills":["автоматизация"],"technologies":["Python","SQLite"]}
+  ],
+  "drafts": [
+    {"id":"draft-1","business_id":"business-1","topic":"retail","original_text":"У нас постоянно путаются остатки товаров."},
+    {"id":"draft-2","business_id":"business-2","topic":"logistics","original_text":"У нас небольшая доставка, хотим меньше опаздывать. Есть CSV с заказами за месяц."},
+    {"id":"draft-3","business_id":"business-1","topic":"retail","original_text":"Хотим анализировать отзывы покупателей. Есть 200 обезличенных отзывов, нужен список частых жалоб для владельца."},
+    {"id":"draft-4","business_id":"business-2","topic":"logistics","original_text":"Диспетчер вручную распределяет заказы. Нужен прототип таблицы нагрузки курьеров. Данные синтетические, срок две недели, без интеграции с картами."},
+    {"id":"draft-5","business_id":"business-1","topic":"retail","original_text":"Кладовщику нужен список товаров с остатком ниже 5. Есть тестовый CSV на 500 строк. Результат — загрузка CSV и список дефицита. Проверка: все позиции ниже 5 найдены. Срок две недели, без подключения кассы. Владелец консультирует раз в неделю: store@example.test."}
+  ]
+}

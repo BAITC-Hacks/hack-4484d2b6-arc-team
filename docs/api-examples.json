@@ -1,0 +1,167 @@
+{
+  "contract_version": "0.1.0",
+  "note": "Синтетические примеры шага 1. Никакой генерации, рейтинга или публикации пока нет.",
+  "headers": {
+    "X-Demo-Business-Id": "business-1"
+  },
+  "profiles_response": {
+    "businesses": [
+      {
+        "id": "business-1",
+        "name": "Демо · магазин у дома",
+        "industry": "retail",
+        "contact": "store@example.test",
+        "is_demo": true
+      },
+      {
+        "id": "business-2",
+        "name": "Демо · городская доставка",
+        "industry": "logistics",
+        "contact": "delivery@example.test",
+        "is_demo": true
+      }
+    ],
+    "teams": [
+      {
+        "id": "team-1",
+        "name": "ByteTeam",
+        "interests": [
+          "retail"
+        ],
+        "skills": [
+          "аналитика",
+          "веб-разработка"
+        ],
+        "technologies": [
+          "Python",
+          "JavaScript"
+        ],
+        "is_demo": true
+      },
+      {
+        "id": "team-2",
+        "name": "DataCrew",
+        "interests": [
+          "logistics"
+        ],
+        "skills": [
+          "анализ данных"
+        ],
+        "technologies": [
+          "Python",
+          "pandas"
+        ],
+        "is_demo": true
+      },
+      {
+        "id": "team-3",
+        "name": "EduBuilders",
+        "interests": [
+          "education"
+        ],
+        "skills": [
+          "UX",
+          "веб-разработка"
+        ],
+        "technologies": [
+          "HTML",
+          "JavaScript"
+        ],
+        "is_demo": true
+      },
+      {
+        "id": "team-4",
+        "name": "GreenCode",
+        "interests": [
+          "agriculture"
+        ],
+        "skills": [
+          "машинное обучение"
+        ],
+        "technologies": [
+          "Python"
+        ],
+        "is_demo": true
+      },
+      {
+        "id": "team-5",
+        "name": "ProcessLab",
+        "interests": [
+          "services"
+        ],
+        "skills": [
+          "автоматизация"
+        ],
+        "technologies": [
+          "Python",
+          "SQLite"
+        ],
+        "is_demo": true
+      }
+    ]
+  },
+  "create_draft_request": {
+    "original_text": "У нас постоянно путаются остатки товаров.",
+    "topic": "retail"
+  },
+  "task_response": {
+    "id": "draft-1",
+    "business_id": "business-1",
+    "original_text": "У нас постоянно путаются остатки товаров.",
+    "draft_text": "У нас постоянно путаются остатки товаров.",
+    "topic": "retail",
+    "questions": [],
+    "answers": {},
+    "proposed_card": {
+      "title": "",
+      "context": "",
+      "need": "",
+      "users": "",
+      "data": "",
+      "constraints": "",
+      "expected_result": "",
+      "success_criteria": "",
+      "contact": "",
+      "interaction_format": "",
+      "ai_recommendations": []
+    },
+    "confirmed_card": null,
+    "confirmed_rating": null,
+    "published_card": null,
+    "published_rating": null,
+    "status": "draft",
+    "confirmed_at": null,
+    "published_at": null,
+    "created_at": "2026-09-23T09:15:00Z",
+    "updated_at": "2026-09-23T09:15:00Z"
+  },
+  "save_draft_request": {
+    "draft_text": "Нужно улучшить учёт остатков магазина.",
+    "answers": {},
+    "proposed_card": {
+      "title": "Учёт остатков",
+      "context": "Остатки ведутся вручную.",
+      "need": "",
+      "users": "",
+      "data": "",
+      "constraints": "",
+      "expected_result": "",
+      "success_criteria": "",
+      "contact": "",
+      "interaction_format": "",
+      "ai_recommendations": []
+    }
+  },
+  "validation_error_response": {
+    "error": {
+      "code": "validation_error",
+      "message": "Проверьте поля запроса",
+      "details": [
+        {
+          "field": "body.original_text",
+          "message": "String should have at least 1 character"
+        }
+      ]
+    }
+  }
+}
