@@ -50,6 +50,7 @@ class Team(Model):
     skills: list[str] = Field(default_factory=list)
     technologies: list[str] = Field(default_factory=list)
     is_demo: bool = True
+    points: int = Field(default=0, ge=0)
 
 
 class DemoProfiles(Model):
@@ -200,6 +201,32 @@ class AIResult(Model):
     ai: AIMetadata
 
 
+class PublishedTask(Model):
+    id: str
+    topic: str
+    status: Literal["published"] = "published"
+    published_at: datetime
+    published_card: TaskCard
+    published_rating: Rating
+
+
+class ProposalCreate(Model):
+    idea: RequiredText
+    plan: RequiredText
+    timeline: RequiredText
+    prototype_url: HttpUrl | None = None
+    questions: Text = ""
+
+
+class ProposalDecision(Model):
+    status: Literal["selected", "rejected"]
+
+
+class MilestoneCreate(Model):
+    description: RequiredText
+    result_url: HttpUrl | None = None
+
+
 class Proposal(Model):
     id: str
     task_id: str
@@ -223,3 +250,9 @@ class Milestone(Model):
     points_awarded: int = Field(default=0, ge=0)
     created_at: datetime
     confirmed_at: datetime | None = None
+
+
+class ProposalView(Proposal):
+    team_name: str
+    task_title: str
+    milestones: list[Milestone] = Field(default_factory=list)
