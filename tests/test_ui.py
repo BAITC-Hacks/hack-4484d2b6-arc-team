@@ -12,7 +12,8 @@ def test_shell_and_catalog_assets_are_served_without_exposing_drafts(tmp_path):
         for asset in ("styles.css", "shell.js", "catalog.css", "catalog.js", "icons.svg",
                       "builder.css", "builder.js", "task-detail.css", "task-detail.js",
                       "proposal-form.css", "proposal-form.js", "team-api.js", "team-workspace.js", "team-workspace.css",
-                      "role-lock.js", "business-api.js", "business.js", "business.css"):
+                      "role-lock.js", "business-api.js", "business.js", "business.css",
+                      "gamification.css", "gamification.js"):
             assert f'/static/{asset}' in shell.text
             assert client.get(f"/static/{asset}").status_code == 200
         fixtures = client.get("/static/catalog-demo.json").json()
