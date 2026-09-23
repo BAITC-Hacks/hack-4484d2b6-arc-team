@@ -9,11 +9,14 @@
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="stylesheet" href="/static/catalog.css">
   <link rel="stylesheet" href="/static/builder.css">
+  <link rel="stylesheet" href="/static/business.css">
   <link rel="stylesheet" href="/static/task-detail.css">
   <script src="/static/task-detail.js" defer></script>
   <script src="/static/shell.js" defer></script>
   <script src="/static/catalog.js" defer></script>
   <script src="/static/builder.js" defer></script>
+  <script src="/static/business-api.js" defer></script>
+  <script src="/static/business.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -150,12 +153,33 @@
           <div id="catalog-error" class="panel empty-state" hidden role="alert"><h2>Не удалось загрузить каталог</h2><p>Проверьте соединение и попробуйте ещё раз.</p><button id="catalog-retry" class="button button-primary" type="button">Повторить загрузку</button></div>
           <footer class="page-footer"><span>Примеры для проверки интерфейса. Публичный API подключается на следующем этапе.</span><span>Бизнес + команды + возможности ↗</span></footer>
         </section>
-        <section id="page-business" class="page" aria-labelledby="business-title" hidden><p class="eyebrow">КАБИНЕТ БИЗНЕСА</p><h1 id="business-title">Мои задачи</h1><div class="panel empty-state"><span class="empty-icon number-mint"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#case"/></svg></span><h2>Место для ваших будущих решений</h2><p>Здесь появятся задачи бизнеса, предложения команд и результаты этапов.</p><a class="button button-outline" href="#builder">Посмотреть конструктор <span aria-hidden="true">→</span></a></div></section>
+        <section id="page-business" class="page" aria-labelledby="business-title" hidden>
+          <div class="page-heading"><div><p class="eyebrow">КАБИНЕТ БИЗНЕСА</p><h1 id="business-title">Мои задачи</h1><p class="subtitle">От понятной задачи — к команде, с которой хочется работать.</p></div><button id="business-create" class="button button-primary" type="button">＋ Создать задачу</button></div>
+          <div id="business-team-notice" class="panel builder-notice" hidden><h2>Кабинет для бизнеса</h2><p>Переключитесь на роль бизнеса, чтобы работать со своими задачами и предложениями команд.</p><button id="business-switch-role" class="button button-outline" type="button">Перейти к роли бизнеса</button></div>
+          <div id="business-workspace" aria-busy="false">
+            <div class="business-toolbar"><div class="form-field"><label for="business-profile">Демонстрационный бизнес</label><select id="business-profile" class="field-control" disabled><option value="">Загрузка профилей…</option></select></div><div class="form-field"><label for="business-filter">Публикация</label><select id="business-filter" class="field-control"><option value="all">Все задачи</option><option value="draft">Не опубликованы</option><option value="published">Опубликованы</option></select></div><button id="business-refresh" class="button button-outline" type="button">Обновить</button></div>
+            <p id="business-status" class="business-status" role="status" aria-live="polite"></p>
+            <div id="business-error" class="business-error" role="alert" tabindex="-1" hidden><p id="business-error-message"></p><button id="business-error-retry" class="button button-outline" type="button">Обновить данные</button></div>
+            <div id="business-totals" class="business-totals" hidden><div class="business-total"><strong id="business-total"></strong><span>всего задач</span></div><div class="business-total"><strong id="business-published"></strong><span>опубликовано</span></div><div class="business-total"><strong id="business-drafts"></strong><span>рабочих черновиков</span></div></div>
+            <div id="business-empty" class="business-empty" hidden><h3>Место для вашей следующей идеи</h3><p id="business-empty-text">У этого бизнеса пока нет задач. Начните с короткого описания.</p><button id="business-empty-create" class="button button-outline" type="button">Создать задачу</button></div>
+            <div id="business-layout" class="business-layout" hidden>
+              <nav id="business-tasks" class="business-tasks" aria-label="Задачи выбранного бизнеса"></nav>
+              <div class="business-detail"><section id="business-task-detail" class="panel business-detail-heading" aria-label="Выбранная задача"></section>
+                <div class="business-section-heading"><h2>Предложения команд <span id="business-proposal-count"></span></h2><button id="business-compare" class="button button-outline" type="button" disabled>Сравнить выбранные</button></div>
+                <p class="field-hint">Можно выбрать одну, несколько команд или пока никого. Принятое решение по отклику изменить нельзя.</p>
+                <div id="business-proposals-notice" class="business-note" hidden></div>
+                <div id="business-proposals" class="business-proposals" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+          <footer class="page-footer"><span>Демонстрационные профили · решения подтверждаются сервером</span><span>Бизнес + студенты + полезные результаты ↗</span></footer>
+        </section>
         <section id="page-proposals" class="page" aria-labelledby="proposals-title" hidden><p class="eyebrow">КАБИНЕТ КОМАНДЫ</p><h1 id="proposals-title">Мои отклики</h1><div class="panel empty-state"><span class="empty-icon number-yellow"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#message"/></svg></span><h2>От идеи к первому результату</h2><p>Здесь команда сможет следить за своими предложениями и отправлять результаты выбранных этапов.</p><span class="badge badge-yellow">Страница в разработке</span></div></section>
       </main>
     </div>
   </div>
   <p id="shell-announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <dialog id="business-comparison" class="business-comparison" aria-labelledby="business-comparison-title"><div class="business-section-heading"><h2 id="business-comparison-title">Сравнение предложений</h2><button id="business-comparison-close" class="button button-outline" type="button" aria-label="Закрыть сравнение">Закрыть</button></div><div id="business-comparison-content" class="business-table-scroll" tabindex="0" role="region" aria-label="Таблица сравнения предложений"></div></dialog>
   <noscript><p class="noscript-notice">Для работы конструктора, переключения разделов и демопрофиля включите JavaScript.</p></noscript>
 </body>
 </html>

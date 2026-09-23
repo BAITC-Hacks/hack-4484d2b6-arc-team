@@ -1,0 +1,62 @@
+/* Owner dashboard, using the shared Soft Retro palette and components. */
+.business-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; padding: 18px; background: #eef2eb; border-radius: 10px; }
+.business-toolbar .form-field { flex: 1 1 190px; min-width: 0; }
+.business-toolbar label { font-size: 12px; }
+.business-status { min-height: 20px; color: var(--color-muted); font-size: 12px; line-height: 1.6; margin: 14px 0; }
+.business-totals { display: flex; flex-wrap: wrap; gap: 14px; margin: 24px 0; }
+.business-total { flex: 1 1 140px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 10px; padding: 16px; display: flex; gap: 12px; align-items: baseline; }
+.business-total strong { font-size: 26px; }
+.business-total span { color: var(--color-muted); font-size: 12px; }
+.business-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: start; gap: 22px; }
+.business-tasks { display: grid; gap: 10px; }
+.business-task { padding: 15px; border: 1px solid #c9d0d4; border-radius: 10px; background: var(--color-surface); text-align: left; color: var(--color-ink); }
+.business-task[aria-pressed="true"] { border-color: var(--color-primary); background: #edf4ff; box-shadow: 2px 3px 0 #dce7f5; }
+.business-task h3 { margin: 10px 0; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.business-task p { font-size: 11px; line-height: 1.6; margin: 6px 0 0; }
+.business-task .badge { font-size: 9px; }
+.business-task .business-task-score { color: var(--color-muted); }
+.business-detail { min-width: 0; }
+.business-detail-heading { padding: 22px; margin-bottom: 20px; }
+.business-detail-heading h2 { margin: 12px 0; font-family: Georgia, serif; font-size: 25px; line-height: 1.3; overflow-wrap: anywhere; }
+.business-detail-heading p { color: var(--color-muted); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.business-section-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.business-section-heading h2 { margin: 0; font-size: 17px; }
+.business-section-heading .button { font-size: 11px; }
+.business-note { padding: 16px; background: #f9edbd; border: 1px solid #dace9c; border-radius: 8px; font-size: 12px; line-height: 1.8; }
+.business-note h3 { margin: 0 0 6px; font-size: 14px; }
+.business-note p { margin: 0; }
+.business-error { border: 1px solid #b46b58; border-radius: 9px; background: #fff0e7; padding: 18px; margin: 16px 0; }
+.business-error p { margin: 0 0 12px; line-height: 1.7; font-size: 13px; }
+.business-empty { padding: 32px 20px; text-align: center; border: 1px dashed #bdc6cd; border-radius: 10px; background: var(--color-surface); }
+.business-empty h3 { font-family: Georgia, serif; font-size: 22px; margin: 0 0 10px; }
+.business-empty p { color: var(--color-muted); font-size: 12px; line-height: 1.7; }
+.business-proposals { display: grid; gap: 18px; }
+.business-proposal { padding: 22px; }
+.business-proposal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.business-proposal-header h3 { font-family: Georgia, serif; font-size: 21px; margin: 0 0 8px; overflow-wrap: anywhere; }
+.business-compare-label { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+.business-compare-label input { accent-color: var(--color-primary); }
+.business-proposal dl { margin: 0; }
+.business-proposal dt { font-size: 11px; font-weight: 700; color: var(--color-muted); margin-top: 17px; }
+.business-proposal dd { margin: 6px 0 0; font-size: 13px; white-space: pre-wrap; line-height: 1.7; overflow-wrap: anywhere; }
+.business-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.business-actions .button { font-size: 11px; }
+.business-link { color: #245897; text-underline-offset: 3px; }
+.business-milestones { border-top: 1px solid var(--color-line); margin-top: 20px; padding-top: 18px; }
+.business-milestones > h4 { font-size: 14px; margin: 0 0 12px; }
+.business-milestone { padding: 16px; border-radius: 9px; background: #f2f7ef; margin-top: 12px; border: 1px solid #cad8c6; }
+.business-milestone p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 12px; }
+.business-milestone .button { font-size: 11px; margin-top: 12px; }
+.business-milestone-points { font-size: 12px; font-weight: 600; color: #2e6557; }
+.business-comparison { width: min(1150px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 24px; color: var(--color-ink); background: var(--color-surface); border: 1px solid var(--color-outline); border-radius: 12px; }
+.business-comparison::backdrop { background: rgb(23 43 77 / 30%); }
+.business-comparison h2 { font-family: Georgia, serif; margin: 0; }
+.business-table-scroll { overflow-x: auto; margin-top: 20px; }
+.business-comparison table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.business-comparison th, .business-comparison td { text-align: left; vertical-align: top; padding: 14px; border: 1px solid var(--color-line); min-width: 210px; max-width: 320px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.business-comparison th { background: var(--color-blue); }
+.business-comparison th[scope="row"] { min-width: 140px; background: #f3f2ea; }
+.business-comparison caption { text-align: left; color: var(--color-muted); margin-bottom: 12px; }
+@media (max-width: 1200px) { .business-layout { grid-template-columns: 210px minmax(0, 1fr); gap: 16px; } }
+@media (max-width: 980px) { .business-layout { grid-template-columns: minmax(0, 1fr); } .business-tasks { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } }
+@media (max-width: 600px) { .business-proposal, .business-detail-heading { padding: 16px; } .business-proposal-header { flex-wrap: wrap; } .business-total { padding: 12px; } }
