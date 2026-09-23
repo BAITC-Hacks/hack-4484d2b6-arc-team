@@ -4,12 +4,14 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require('node:path').join(__dirname, '../app/static/team-api.js'), 'utf8');
+const roleSource = fs.readFileSync(require('node:path').join(__dirname, '../app/static/role-lock.js'), 'utf8');
 function setup(fetch) {
   const role = { disabled: false };
   const values = new Map();
   const context = { window: {}, fetch, AbortController, URL, setTimeout, clearTimeout,
-    document: { querySelector: () => role, documentElement: { dataset: { demoRole: 'team' } } },
+    document: { querySelector: () => role, querySelectorAll: () => [], documentElement: { dataset: { demoRole: 'team' } } },
     localStorage: { getItem: k => values.get(k), setItem: (k, v) => values.set(k, v) } };
+  vm.runInNewContext(roleSource, context);
   vm.runInNewContext(source, context);
   return { api: context.window.SanaTeam, context, role };
 }
@@ -50,6 +52,21 @@ test('unsafe URLs are never rendered as clickable links', () => {
     assert.equal(api.safeUrl(value), null);
   }
   assert.equal(api.safeUrl('https://example.test/demo'), 'https://example.test/demo');
+});
+test('business and builder cannot unlock the role while a team write is still pending', async () => {
+  let finish;
+  const { api, role, context } = setup(() => new Promise(resolve => { finish = resolve; }));
+  context.window.SanaRole.setBusy('builder', true);
+  const sent = api.mutate('/stage', 'team-1', {});
+  context.window.SanaRole.setBusy('builder', false);
+  context.window.SanaRole.setBusy('business', false);
+  assert.equal(role.disabled, true);
+  context.window.SanaRole.setBusy('business', true);
+  finish({ ok: true, json: async () => ({}) });
+  await sent;
+  assert.equal(role.disabled, true);
+  context.window.SanaRole.setBusy('business', false);
+  assert.equal(role.disabled, false);
 });
 test('drafts remain isolated and usable in memory if browser storage fails', () => {
   const { api, context } = setup();

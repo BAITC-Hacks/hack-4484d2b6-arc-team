@@ -50,16 +50,15 @@
     } finally { clearTimeout(timer); signal?.removeEventListener("abort", cancel); }
   }
   async function mutate(path, teamId, body) {
-    const role = document.querySelector("#demo-profile");
     ++mutations;
-    if (role) role.disabled = true;
+    window.SanaRole.setBusy("team", true);
     try { return await request(path, { teamId, body }); }
-    finally { if (!--mutations && role) role.disabled = false; }
+    finally { window.SanaRole.setBusy("team", --mutations > 0); }
   }
   const isTeam = () => document.documentElement.dataset.demoRole === "team";
   function chooseTeam() {
     const role = document.querySelector("#demo-profile");
-    if (role.disabled) return;
+    if (role.disabled || window.SanaRole.isBusy()) return;
     role.value = "team";
     role.dispatchEvent(new Event("change", { bubbles: true }));
   }

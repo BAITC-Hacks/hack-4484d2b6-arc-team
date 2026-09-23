@@ -165,7 +165,7 @@
     if (proposal.status === "selected") box.append(resultForm(proposal));
   }
   function render() {
-    get("summary").textContent = `${offers.length} откликов · ${offers.filter(p => p.status === "selected").length} в работе`;
+    get("summary").textContent = `Откликов: ${offers.length} · В работе: ${offers.filter(p => p.status === "selected").length}`;
     const visible = offers.filter(p => !filter || p.status === filter);
     get("empty").hidden = Boolean(visible.length);
     get("columns").hidden = !visible.length;

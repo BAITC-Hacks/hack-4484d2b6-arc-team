@@ -1,8 +1,7 @@
 # Каталог и страница опубликованной задачи
 
-Интерфейс использует `GET /api/catalog` и `GET /api/catalog/{id}` из API v0.4
-(`feat/backend-workflow`, `380d94a`). Backend нужно включить при общей
-синхронизации: наша ветка сохраняет серверные файлы без изменений.
+Интерфейс использует `GET /api/catalog` и `GET /api/catalog/{id}` из API v0.4.
+Backend и интерфейсы уже объединены; полный отчёт — [INTEGRATION.md](INTEGRATION.md).
 
 Каталог показывает только published_card, published_rating, опубликованную тему
 и дату. Приватные черновики не запрашиваются, оценки не вычисляются клиентом.
@@ -23,8 +22,9 @@ catalog-demo.json сохранён как историческая тестов�
 Есть загрузка, отсутствующая публикация, ошибка и повтор. Устаревшие запросы
 отменяются/игнорируются при навигации. Текст выводится как текст, не HTML.
 
-Порядок: team-api.js → proposal-form.js → task-detail.js → shell.js,
-затем catalog.js, builder.js, team-workspace.js. Секция #page-task создаётся
-до обработки прямого маршрута оболочкой.
+Порядок: role-lock.js → team-api.js → proposal-form.js → task-detail.js → shell.js,
+затем catalog.js, builder.js, business-api.js, business.js и team-workspace.js.
+Секция #page-task создаётся до обработки прямого маршрута оболочкой.
+role-lock.js объединяет блокировки смены роли от всех страниц.
 
 [Форма отклика](PROPOSAL_FORM.md) · [Кабинет, проверки и синхронизация](TEAM_WORKSPACE.md).

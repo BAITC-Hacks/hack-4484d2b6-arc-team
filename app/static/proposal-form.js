@@ -328,11 +328,7 @@
     get("check").addEventListener("click", review);
     get("send").addEventListener("click", send);
     get("retry").addEventListener("click", loadTeams);
-    get("switch-role").addEventListener("click", () => {
-      const role = document.querySelector("#demo-profile");
-      role.value = "team";
-      role.dispatchEvent(new Event("change", { bubbles: true }));
-    });
+    get("switch-role").addEventListener("click", api.chooseTeam);
     showRole();
     loadTeams();
   }

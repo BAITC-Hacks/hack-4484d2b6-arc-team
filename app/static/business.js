@@ -43,7 +43,7 @@
     if (!value) return el("span", "", absent);
     try {
       const url = new URL(value);
-      if (!["https:", "http:"].includes(url.protocol)) throw new Error("scheme");
+      if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) throw new Error("scheme");
       const link = el("a", "business-link", label);
       link.href = url.href;
       link.target = "_blank";
@@ -59,7 +59,7 @@
   function lock() {
     $("business-workspace").setAttribute("aria-busy", String(loading || mutating));
     for (const id of ["business-profile", "business-refresh", "business-filter", "business-error-retry", "business-create", "business-empty-create"]) $(id).disabled = loading || mutating;
-    $("demo-profile").disabled = mutating || window.SanaBuilder.context().busy;
+    window.SanaRole.setBusy("business", mutating);
     $("business-compare").disabled = loading || mutating || mustRefresh || compared.size < 2;
     $("business-compare").textContent = compared.size ? `Сравнить выбранные (${compared.size})` : "Сравнить выбранные";
     $("business-tasks").querySelectorAll("button").forEach((node) => { node.disabled = loading || mutating; });
@@ -304,7 +304,10 @@
     } catch (error) { fail(error); $("business-profile").value = profile; loading = false; lock(); }
   });
   for (const id of ["business-create", "business-empty-create"]) $(id).addEventListener("click", () => openEditor());
-  $("business-switch-role").addEventListener("click", () => { $("demo-profile").value = "business"; $("demo-profile").dispatchEvent(new Event("change")); });
+  $("business-switch-role").addEventListener("click", () => {
+    if (window.SanaRole.isBusy()) return;
+    $("demo-profile").value = "business"; $("demo-profile").dispatchEvent(new Event("change"));
+  });
   function enter() { if (window.location.hash === "#business" && showRole()) loadWorkspace(); }
   window.addEventListener("hashchange", enter);
   window.addEventListener("sana:demo-role-change", () => { showRole(); enter(); });

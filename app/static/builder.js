@@ -96,7 +96,7 @@
     $("builder-fields").disabled = busy || !ready;
     $("builder-content").setAttribute("aria-busy", String(busy));
     for (const id of ["builder-business", "builder-task", "builder-new", "builder-mode"]) $(id).disabled = busy || !ready;
-    $("demo-profile").disabled = busy;
+    window.SanaRole.setBusy("builder", busy);
     $("builder-retry").disabled = busy;
     $("builder-local").disabled = busy;
     $("builder-reviewed").disabled = busy || !ready || !canReview();
@@ -226,7 +226,7 @@
   async function publishCard() {
     if (!canPublish()) throw new Error("Проверьте и подтвердите текущую карточку перед публикацией.");
     acceptTask(await api(`${taskPath()}/publish`, "POST", { expected_updated_at: state.task.updated_at }));
-    message("Подтверждённая версия опубликована на сервере. Каталог пока показывает демонстрационные примеры.");
+    message("Задача опубликована. Она доступна командам в каталоге и в разделе «Мои задачи».");
   }
 
   async function openTask(taskId) {
@@ -495,6 +495,7 @@
   $("builder-retry").addEventListener("click", () => failedOperation?.());
   $("builder-local").addEventListener("click", () => { sourceMode = "local"; $("builder-mode").value = "local"; failedOperation?.(); });
   $("builder-switch-business").addEventListener("click", () => {
+    if (window.SanaRole.isBusy()) return;
     $("demo-profile").value = "business";
     $("demo-profile").dispatchEvent(new Event("change"));
   });
